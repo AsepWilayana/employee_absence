@@ -1,0 +1,63 @@
+<div class="container mt-5">
+  <h1>Contact List</h1>
+  <a href="/pegawai/add" class="btn btn-primary mt-3"
+    ><i class="bi bi-person-plus-fill"></i> Tambah Data Pegawai
+  </a>
+  <div class="card shadow-sm p-3 mb-5 bg-body rounded mt-2">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nomor Induk Pegawai</th>
+            <th scope="col">Nama pegawai</th>
+            <th scope="col">Alamat</th>
+            <th scope="col">Jenis Kelamin</th>
+            <th scope="col" class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (pegawai < 1) {%>
+          <tr>
+            <td colspan="4" class="text-center">data kosong</td>
+          </tr>
+          <% } else {%> <% for (let index=0; index < pegawai.length; index++) {
+          %>
+          <tr>
+            <td scope="row"><%= index+1 %></td>
+            <td><%=pegawai[index].nip %></td>
+            <td><%=pegawai[index].name %></td>
+            <td><%=pegawai[index].alamat %></td>
+            <td><%=pegawai[index].jenis_kelamin %></td>
+            <td>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a
+                  href="/pegawai/detail/<%=pegawai[index].id_pegawai %>"
+                  class="btn btn-success"
+                >
+                  <i class="bi bi-person-lines-fill"></i>
+                  Detail
+                </a>
+                <a
+                  href="/update/<%=pegawai[index].id_pegawai %>"
+                  class="btn btn-warning"
+                >
+                  <i class="bi bi-pencil-square"></i> Update
+                </a>
+                <a
+                  href="/delete/<%=pegawai[index].id_pegawai %>"
+                  onclick="return confirm('yakin?')"
+                  class="btn btn-danger"
+                >
+                  <i class="bi bi-trash-fill"></i>
+                  Delete
+                </a>
+              </div>
+            </td>
+          </tr>
+          <% } %> <%}%>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

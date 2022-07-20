@@ -1,0 +1,106 @@
+<div class="container mt-5">
+  <h1>Tambah Data Contact</h1>
+  <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
+    <div class="card-body">
+      <form action="/pegawai" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+          <input
+            value=""
+            name="nip"
+            type="number"
+            class="form-control"
+            placeholder="Masukkan Nomor Induk Pegawai"
+            aria-label="Masukkan Nomor Induk Pegawai"
+            aria-describedby="basic-addon1"
+            required
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            value=""
+            name="name"
+            type="text"
+            class="form-control"
+            placeholder="Masukkan Name"
+            aria-label="Masukkan Name"
+            aria-describedby="basic-addon1"
+            required
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            value=""
+            name="alamat"
+            type="text"
+            class="form-control"
+            placeholder="Masukkan Alamat"
+            aria-label="Masukkan Alamat"
+            aria-describedby="basic-addon2"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-check-label" for="flexRadioDefault2">
+            Pilih Jenis Kelamin
+          </label>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="jk"
+              id="jk1"
+              value="laki-laki"
+            />
+            <label class="form-check-label" for="jk1"> Laki-laki </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="jk"
+              id="jk2"
+              value="perempuan"
+            />
+            <label class="form-check-label" for="flexRadioDefault2">
+              Perempuan
+            </label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <input
+            class="form-control"
+            type="file"
+            id="formFile"
+            name="profile-file"
+          />
+        </div>
+
+        <div class="input-group mb-3">
+          <input
+            value=""
+            name="password"
+            type="password"
+            class="form-control"
+            placeholder="Masukkan password"
+            aria-label="Masukkan password"
+            aria-describedby="basic-addon1"
+            required
+          />
+        </div>
+
+        <div class="input-group mb-3">
+          <div class="m-1">
+            <button class="btn btn-primary">
+              <i class="bi bi-send-fill"></i> Send Data
+            </button>
+          </div>
+          <div class="m-1">
+            <a href="/pegawai" class="btn btn-dark">
+              <i class="bi bi-arrow-left-circle-fill"></i> Kembali
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
