@@ -2,6 +2,7 @@ const {
   getPegawai,
   getPegawaiById,
   deletePegawai,
+  updatePegawai,
 } = require("../controllers/pegawaiControllers");
 
 const express = require("express");
@@ -17,5 +18,6 @@ router.get("/pegawai/add", (req, res) => {
 });
 
 router.get("/delete/:id", deletePegawai);
+router.get("/update/:id", updatePegawai);
 
 module.exports = router;

@@ -1,11 +1,15 @@
 <div class="container mt-5">
-  <h1>Tambah Data Pegawai</h1>
+  <h1>Update Data Pegawai</h1>
   <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
     <div class="card-body">
-      <form action="/pegawai" method="post" enctype="multipart/form-data">
+      <form
+        action="/<%= pegawai.id_pegawai %>"
+        method="post"
+        enctype="multipart/form-data"
+      >
         <div class="input-group mb-3">
           <input
-            value=""
+            value="<%= pegawai.nip %>"
             name="nip"
             type="number"
             class="form-control"
@@ -13,11 +17,13 @@
             aria-label="Masukkan Nomor Induk Pegawai"
             aria-describedby="basic-addon1"
             required
+            disabled
+            readonly
           />
         </div>
         <div class="input-group mb-3">
           <input
-            value=""
+            value="<%= pegawai.name %>"
             name="name"
             type="text"
             class="form-control"
@@ -29,7 +35,7 @@
         </div>
         <div class="input-group mb-3">
           <input
-            value=""
+            value="<%= pegawai.alamat %>"
             name="alamat"
             type="text"
             class="form-control"
@@ -44,38 +50,40 @@
             Pilih Jenis Kelamin
           </label>
           <div class="form-check">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="jk"
-              id="jk1"
-              value="laki-laki"
-            />
+            <input class="form-check-input" type="radio" name="jk" id="jk1"
+            value="laki-laki" <%= pegawai.jenis_kelamin === 'laki-laki' ?
+            'checked' : ''; %>/>
             <label class="form-check-label" for="jk1"> Laki-laki </label>
           </div>
           <div class="form-check">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="jk"
-              id="jk2"
-              value="perempuan"
-            />
+            <input class="form-check-input" type="radio" name="jk" id="jk2"
+            value="perempuan" <%= pegawai.jenis_kelamin === 'perempuan' ?
+            'checked' : ''; %> />
             <label class="form-check-label" for="flexRadioDefault2">
               Perempuan
             </label>
           </div>
         </div>
+        <!-- <label class="form-check-label" for="flexRadioDefault2">
+          Pilih Photo
+        </label> -->
         <div class="mb-3">
+          <!-- <img
+            src="/uploads/<%# pegawai.photo %>"
+            class="card-img-top w-25 rounded mb-2"
+          /> -->
           <input
             class="form-control"
             type="file"
             id="formFile"
             name="profile-file"
           />
+          <div class="text-danger">
+            *Photo jika tidak ada perubahan biarkan saja kosong
+          </div>
         </div>
 
-        <div class="input-group mb-3">
+        <div class="mb-3">
           <input
             value=""
             name="password"
@@ -84,8 +92,10 @@
             placeholder="Masukkan password"
             aria-label="Masukkan password"
             aria-describedby="basic-addon1"
-            required
           />
+          <label class="text-danger">
+            *Password jika tidak ada perubahan biarkan saja kosong
+          </label>
         </div>
 
         <div class="input-group mb-3">
