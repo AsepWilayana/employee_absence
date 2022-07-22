@@ -5,13 +5,15 @@
       <form action="/pegawai" method="post" enctype="multipart/form-data">
         <div class="input-group mb-3">
           <input
-            value=""
+            value="<%= nip %>"
             name="nip"
             type="number"
             class="form-control"
             placeholder="Masukkan Nomor Induk Pegawai"
             aria-label="Masukkan Nomor Induk Pegawai"
             aria-describedby="basic-addon1"
+            disabled
+            readonly
             required
           />
         </div>

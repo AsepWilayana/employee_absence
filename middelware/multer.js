@@ -9,6 +9,8 @@ var expressLayouts = require("express-ejs-layouts");
 const pool = require("../db");
 var pegawaiRoute = require("../Routes/pegawaiRoute");
 const port = 3000;
+const moment = require("moment");
+const session = require("express-session");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -41,4 +43,5 @@ module.exports = {
   app,
   port,
   console,
+  session,
 };

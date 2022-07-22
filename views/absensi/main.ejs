@@ -1,0 +1,35 @@
+<div class="container mt-5">
+  <h1>List Absensi Pegawai</h1>
+</div>
+<div class="table-responsive-sm tscroll">
+  <table class="table table-bordered m-3">
+    <thead>
+      <tr>
+        <th rowspan="3">#</th>
+        <th rowspan="3">Nomor Induk Pegawai</th>
+        <th colspan="<%= jumlah *2 %>" class="text-center">tanggal</th>
+      </tr>
+      <tr>
+        <% for (let index=0; index < jumlah; index++) { %>
+        <th colspan="2" class="text-center"><%=index +1%></th>
+        <%}%>
+      </tr>
+      <tr>
+        <% for (let index=0; index < jumlah; index++) { %>
+        <th>JM</th>
+        <th>JK</th>
+        <%}%>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-center">1</td>
+        <td class="text-center">2</td>
+        <% for (let index=0; index < jumlah; index++) { %>
+        <td class="text-center">3</td>
+        <td class="text-center">4</td>
+        <%}%>
+      </tr>
+    </tbody>
+  </table>
+</div>

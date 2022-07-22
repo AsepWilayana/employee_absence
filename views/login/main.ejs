@@ -1,0 +1,33 @@
+<div class="container mt-5">
+  <% if(msg !== '') { %>
+  <div class="alert alert-danger" role="alert"><%= msg %></div>
+  <% } %>
+  <h1>halaman login</h1>
+  <form action="/login" method="post">
+    <div class="w-50">
+      <div class="mb-3 mt-5">
+        <label class="form-label">Masukan NIP</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nomor Induk Pegawai"
+          name="nip"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Masukan password</label>
+        <input
+          type="password"
+          class="form-control"
+          placeholder="Password"
+          name="password"
+        />
+      </div>
+    </div>
+    <div class="m-1">
+      <button class="btn btn-primary">
+        <i class="bi bi-send-fill"></i> Login
+      </button>
+    </div>
+  </form>
+</div>
