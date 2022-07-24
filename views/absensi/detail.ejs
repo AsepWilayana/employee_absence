@@ -39,32 +39,47 @@
         <i class="bi bi-phone-fill"></i> password :
         <b><%# pegawai.password %></b>
       </li> -->
-
       <li class="list-group-item">
-        <a href="/update/<%=pegawai.id_pegawai %>" class="btn btn-warning">
-          <i class="bi bi-pencil-square"></i> Update
-        </a>
-        <a
-          href="/delete/<%=pegawai.id_pegawai %>"
-          onclick="return confirm('yakin ingin di delete?')"
-          class="btn btn-danger"
-        >
-          <i class="bi bi-trash-fill"></i>
-          Delete
-        </a>
-        <a
-          href="/nonaktif/<%=pegawai.id_pegawai %>"
-          onclick="return confirm('yakin ingin di tidak aktifkan?')"
-          class="btn btn-info"
-        >
-          <i class="bi bi-person-x-fill"></i>
-          Non Aktif
-        </a>
-
-        <a href="/pegawai" class="btn btn-dark"
+        <a href="/absensi" class="btn btn-dark"
           ><i class="bi bi-arrow-left-circle-fill"></i> Kembali</a
         >
       </li>
     </ul>
+  </div>
+  <h1>History Absensi</h1>
+  <div class="card shadow-sm p-3 mb-5 bg-body rounded mt-2">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Tanggal</th>
+            <th scope="col">Jam Masuk</th>
+            <th scope="col">Jam Keluar</th>
+            <th scope="col">Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (pegawai < 1) {%>
+          <tr>
+            <td colspan="4" class="text-center">data kosong</td>
+          </tr>
+          <% } else {%> <% for (let index=0; index < absensi.length; index++) {
+          var today = absensi[index].tanggal.toLocaleDateString('id-ID', {
+          weekday: 'long', day : 'numeric', month : 'long', year : 'numeric'
+          }).split(' ').join(' '); %>
+
+          <tr>
+            <td scope="row"><%= index+1 %></td>
+            <td><%=today %></td>
+            <td><%=absensi[index].jam_masuk %></td>
+            <td><%=absensi[index].jam_keluar %></td>
+            <td><%=absensi[index].keterangan %></td>
+          </tr>
+          <% } %>
+        </tbody>
+        <%}%>
+      </table>
+    </div>
   </div>
 </div>

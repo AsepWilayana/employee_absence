@@ -40,9 +40,9 @@ const getPegawaiById = async (req, res) => {
       const getpegawai = await pool.query(
         `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
       );
-      const nip = getpegawai.rows[0].nip;
+      const id_pegawai = getpegawai.rows[0].id_pegawai;
       const getAbsensiById = await pool.query(
-        `SELECT * FROM absensi WHERE nip = '${nip}';`
+        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}';`
       );
       const pegawai = getpegawai.rows[0];
       const absensi = getAbsensiById.rows;

@@ -22,8 +22,6 @@ var storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-var morgans = morgan("dev");
-
 var bcrypt = require("bcrypt");
 var salt = bcrypt.genSaltSync(10);
 
@@ -31,7 +29,6 @@ const console = require("console");
 
 module.exports = {
   upload,
-  morgans,
   salt,
   bcrypt,
   http,
@@ -44,4 +41,5 @@ module.exports = {
   port,
   console,
   session,
+  fs,
 };

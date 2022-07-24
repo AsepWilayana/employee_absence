@@ -1,35 +1,46 @@
 <div class="container mt-5">
   <h1>List Absensi Pegawai</h1>
-</div>
-<div class="table-responsive-sm tscroll">
-  <table class="table table-bordered m-3">
-    <thead>
-      <tr>
-        <th rowspan="3">#</th>
-        <th rowspan="3">Nomor Induk Pegawai</th>
-        <th colspan="<%= jumlah *2 %>" class="text-center">tanggal</th>
-      </tr>
-      <tr>
-        <% for (let index=0; index < jumlah; index++) { %>
-        <th colspan="2" class="text-center"><%=index +1%></th>
-        <%}%>
-      </tr>
-      <tr>
-        <% for (let index=0; index < jumlah; index++) { %>
-        <th>JM</th>
-        <th>JK</th>
-        <%}%>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="text-center">1</td>
-        <td class="text-center">2</td>
-        <% for (let index=0; index < jumlah; index++) { %>
-        <td class="text-center">3</td>
-        <td class="text-center">4</td>
-        <%}%>
-      </tr>
-    </tbody>
-  </table>
+  <h3>Pegawai Sudah Absen</h3>
+  <div class="table-responsive-sm">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center">#</th>
+          <th scope="col" class="text-center">Name</th>
+          <th scope="col" class="text-center">Nomor Induk Pegawai</th>
+          <th scope="col" class="text-center">tanggal</th>
+          <th scope="col" class="text-center">Jam Masuk</th>
+          <th scope="col" class="text-center">Jam Keluar</th>
+          <th scope="col" class="text-center">Keterangan</th>
+          <th scope="col" class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (absensi < 1) {%>
+        <tr>
+          <td colspan="7" class="text-center">data kosong</td>
+        </tr>
+        <% } else {%> <% for(let index=0; index < absensi.length; index++) { %>
+        <tr>
+          <td><%= index+1 %></td>
+          <td><%= absensi[index].name %></td>
+          <td><%= absensi[index].nip %></td>
+          <td><%= absensi[index].tanggal.toLocaleDateString('id-ID') %></td>
+          <td><%= absensi[index].jam_masuk %></td>
+          <td><%= absensi[index].jam_keluar %></td>
+          <td><%= absensi[index].keterangan %></td>
+          <td>
+            <a
+              href="/absensi/detail/<%=absensi[index].id_pegawai %>"
+              class="btn btn-success"
+            >
+              <i class="bi bi-person-lines-fill"></i>
+              Detail
+            </a>
+          </td>
+        </tr>
+        <% } %> <% } %>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -1,6 +1,5 @@
 const {
   upload,
-  morgans,
   salt,
   bcrypt,
   express,
@@ -11,9 +10,53 @@ const {
   port,
   console,
   session,
+  fs,
+  http,
 } = require("./middelware/multer");
-
+var path = require("path");
+var morgan = require("morgan");
+var cron = require("node-cron");
 var bodyParser = require("body-parser");
+
+cron.schedule("16 23nodemon * * *", () => {
+  sendData().then(console.log("success Generate Absensi"));
+});
+
+async function sendData() {
+  var d = new Date();
+  var dateTime =
+    d.getDate() +
+    "-" +
+    (d.getMonth() + 1) +
+    "-" +
+    d.getFullYear() +
+    " " +
+    d.getHours() +
+    ":" +
+    d.getMinutes();
+  var datestring =
+    d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+
+  var datestring =
+    d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  console.log(datestring);
+  const getpegawai = await pool.query(`SELECT * FROM pegawai;`);
+  const pegawai = getpegawai.rows;
+  for (let index = 0; index < pegawai.length; index++) {
+    await pool.query(
+      `INSERT INTO absensi (
+    id_pegawai, tanggal, keterangan, create_at, update_at ) values ('${pegawai[index].id_pegawai}','${datestring}','belum absen masuk dan keluar','${dateTime}','${dateTime}')`
+    );
+  }
+}
+
+// morgan.token("json", function (req, res) {
+//   return JSON.stringify({
+//     url: req.url,
+//     method: req.method,
+//     httpVersion: req.httpVersion,
+//   });
+// });
 
 var hour = 3600000;
 app.use(
@@ -27,7 +70,6 @@ app.use(
 app.use(require("flash")());
 
 // create "middleware"
-app.use(morgans);
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use("/uploads", express.static("uploads"));
@@ -44,10 +86,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", async (req, res) => {
   const title = "Dashboard";
   msg = "";
-  res.render("login/main", { title: title, msg });
+  const sessions = "";
+  res.render("login/main", { title: title, msg, sessions });
 });
-
-app.use(pegawaiRoute);
 
 app.post("/login", async (req, res) => {
   try {
@@ -88,6 +129,8 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.use(pegawaiRoute);
+
 //halaman home
 app.get("/dashboard", async (req, res) => {
   var sessions = req.session;
@@ -116,15 +159,52 @@ app.get("/pegawai/add", async (req, res) => {
 app.get("/absensi", async (req, res) => {
   const title = "Dashboard";
   var sessions = req.session;
+  const getAbsensi = await pool.query(
+    `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai FROM pegawai JOIN absensi on absensi.id_pegawai = pegawai.id_pegawai where tanggal = now()::date 
+order by absensi.tanggal asc;`
+  );
+  const absensi = getAbsensi.rows;
 
   if (sessions.nip) {
-    function daysInMonth(month, year) {
-      return new Date(year, month, 0).getDate();
-    }
-    jumlah = daysInMonth(7, 2022);
-    res.render("absensi/main", { title: title, jumlah, sessions });
+    // function daysInMonth(month, year) {
+    //   return new Date(year, month, 0).getDate();
+    // }
+    // jumlah = daysInMonth(7, 2022);
+    // console.log(absensis);
+
+    res.render("absensi/main", { title: title, absensi });
   } else {
     res.redirect("/");
+  }
+});
+
+app.get("/absensi/detail/:id", async (req, res) => {
+  const title = "Dashboard";
+  try {
+    var sessions = req.session;
+    // if (sessions.nip) {
+    const title = "Pegawai";
+    const id = req.params.id;
+    const getpegawai = await pool.query(
+      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
+    );
+    const id_pegawai = getpegawai.rows[0].id_pegawai;
+    const getAbsensiById = await pool.query(
+      `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
+    );
+    const pegawai = getpegawai.rows[0];
+    const absensi = getAbsensiById.rows;
+    res.render("absensi/detail", {
+      title: title,
+      pegawai,
+      absensi,
+      // sessions,
+    });
+    // } else {
+    //   res.redirect("/");
+    // }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
   }
 });
 
@@ -197,6 +277,11 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+});
+
+app.use("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
 });
 
 app
