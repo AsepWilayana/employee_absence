@@ -1,6 +1,5 @@
 <div class="container mt-5">
   <h1>List Absensi Pegawai</h1>
-  <h3>Pegawai Sudah Absen</h3>
   <div class="table-responsive-sm">
     <table class="table table-bordered">
       <thead>
@@ -21,11 +20,14 @@
           <td colspan="7" class="text-center">data kosong</td>
         </tr>
         <% } else {%> <% for(let index=0; index < absensi.length; index++) { %>
+        <% var today = absensi[index].tanggal.toLocaleDateString('id-ID', {
+        weekday: 'long', day : 'numeric', month : 'long', year : 'numeric'
+        }).split(' ').join(' '); %>
         <tr>
           <td><%= index+1 %></td>
           <td><%= absensi[index].name %></td>
           <td><%= absensi[index].nip %></td>
-          <td><%= absensi[index].tanggal.toLocaleDateString('id-ID') %></td>
+          <td><%= today %></td>
           <td><%= absensi[index].jam_masuk %></td>
           <td><%= absensi[index].jam_keluar %></td>
           <td><%= absensi[index].keterangan %></td>

@@ -18,7 +18,7 @@ var morgan = require("morgan");
 var cron = require("node-cron");
 var bodyParser = require("body-parser");
 
-cron.schedule("16 23nodemon * * *", () => {
+cron.schedule("01 00 * * *", () => {
   sendData().then(console.log("success Generate Absensi"));
 });
 
@@ -143,7 +143,7 @@ app.get("/dashboard", async (req, res) => {
       order by absensi.tanggal asc;`
     );
     const absensi = getAbsensi.rows;
-    console.log(absensi);
+    // console.log(absensi);
     res.render("dashboard/main", { title: title, sessions, absensi });
   } else {
     res.redirect("/");
@@ -358,6 +358,35 @@ app.get("/checkout/:id", async (req, res) => {
       } else {
         res.redirect("/dashboard");
       }
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+});
+
+app.get("/history", async (req, res) => {
+  try {
+    var sessions = req.session;
+    if (sessions.nip) {
+      const title = "Pegawai";
+      const nip = sessions.nip;
+      const getpegawai = await pool.query(
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
+      );
+      const id_pegawai = getpegawai.rows[0].id_pegawai;
+      const getAbsensiById = await pool.query(
+        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}';`
+      );
+      const pegawai = getpegawai.rows[0];
+      const absensi = getAbsensiById.rows;
+      res.render("absensi/history_absensi", {
+        title: title,
+        pegawai,
+        absensi,
+        sessions,
+      });
     } else {
       res.redirect("/");
     }
