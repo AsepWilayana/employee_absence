@@ -149,8 +149,11 @@ app.get("/pegawai/add", async (req, res) => {
     const pegawaiOne = await pool.query(
       `SELECT nip FROM pegawai order by nip desc limit 1;`
     );
+
+    const roles = await pool.query(`SELECT * FROM role;`);
+    const role = roles.rows;
     const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
-    res.render("pegawai/add", { title: title, nip, sessions });
+    res.render("pegawai/add", { title: title, nip, role, sessions });
   } else {
     res.redirect("/");
   }
@@ -172,7 +175,7 @@ order by absensi.tanggal asc;`
     // jumlah = daysInMonth(7, 2022);
     // console.log(absensis);
 
-    res.render("absensi/main", { title: title, absensi });
+    res.render("absensi/main", { title: title, absensi, sessions });
   } else {
     res.redirect("/");
   }
@@ -182,27 +185,27 @@ app.get("/absensi/detail/:id", async (req, res) => {
   const title = "Dashboard";
   try {
     var sessions = req.session;
-    // if (sessions.nip) {
-    const title = "Pegawai";
-    const id = req.params.id;
-    const getpegawai = await pool.query(
-      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
-    );
-    const id_pegawai = getpegawai.rows[0].id_pegawai;
-    const getAbsensiById = await pool.query(
-      `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
-    );
-    const pegawai = getpegawai.rows[0];
-    const absensi = getAbsensiById.rows;
-    res.render("absensi/detail", {
-      title: title,
-      pegawai,
-      absensi,
-      // sessions,
-    });
-    // } else {
-    //   res.redirect("/");
-    // }
+    if (sessions.nip) {
+      const title = "Pegawai";
+      const id = req.params.id;
+      const getpegawai = await pool.query(
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
+      );
+      const id_pegawai = getpegawai.rows[0].id_pegawai;
+      const getAbsensiById = await pool.query(
+        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
+      );
+      const pegawai = getpegawai.rows[0];
+      const absensi = getAbsensiById.rows;
+      res.render("absensi/detail", {
+        title: title,
+        pegawai,
+        absensi,
+        sessions,
+      });
+    } else {
+      res.redirect("/");
+    }
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -213,18 +216,16 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
     const name = req.body.name;
     const alamat = req.body.alamat;
     const jk = req.body.jk;
-    const foto = req.file.originalname;
+    const foto = req.file?.originalname || "default.png";
     const password = req.body.password;
     const status = "aktif";
-    const role = "3";
+    const role = req.body.role;
     var hash = bcrypt.hashSync(password, salt);
 
     const pegawaiOne = await pool.query(
       `SELECT nip FROM pegawai order by nip desc limit 1;`
     );
     const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
-
-    console.log(nip);
 
     const title = "Web Server EJS";
     await pool.query(
@@ -245,9 +246,10 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
     const newjk = req.body.jk;
     const newphoto = req.file?.originalname;
     const newpassword = req.body.password;
+    const role = req.body.role;
     var hash = bcrypt.hashSync(newpassword, salt);
     const findData = await pool.query(
-      `SELECT * FROM pegawai WHERE id_pegawai = '${id}' ;`
+      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
     );
 
     const pegawai = findData.rows[0];
@@ -264,9 +266,10 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
       const Newjk = newjk || pegawai.jenis_kelamin;
       const Newphoto = newphoto || pegawai.photo;
       const Newpassword = hash || pegawai.password;
+      const Role = role || pegawai.id_role;
 
       pool.query(`UPDATE pegawai
-      SET id_pegawai='${id_pegawai}', nip='${Newnip}', name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}', password='${Newpassword}'
+      SET id_pegawai='${id_pegawai}', nip='${Newnip}', name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}',id_role='${Role}'  ,password='${Newpassword}'
       WHERE id_pegawai = '${id}';`);
     } else {
       console.log("data tidak ada");

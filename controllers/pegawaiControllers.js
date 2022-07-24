@@ -88,7 +88,7 @@ const updatePegawai = async (req, res) => {
       const title = "Web Server EJS";
       const id = req.params.id;
       const getPegawaiById = await pool.query(
-        `SELECT * FROM pegawai WHERE id_pegawai = '${id}';`
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
       );
       const pegawai = getPegawaiById.rows[0];
       if (!pegawai) {
@@ -97,10 +97,14 @@ const updatePegawai = async (req, res) => {
           .render("error_page", { respone: "page not found : 404" });
       }
 
+      const roles = await pool.query(`SELECT * FROM role;`);
+      const role = roles.rows;
+
       res.render("pegawai/update", {
         title: title,
         pegawai,
         sessions,
+        role,
       });
     } else {
       res.redirect("/");

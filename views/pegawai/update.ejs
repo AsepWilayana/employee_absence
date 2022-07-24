@@ -83,6 +83,24 @@
           </div>
         </div>
 
+        <div class="input-group mb-3">
+          <select
+            class="form-select"
+            name="role"
+            aria-label="Default select example"
+          >
+            <% for(let index=0; index < role.length; index++){ %>
+            <option <%= pegawai.id_role === role[index].id_role ?
+            'selected' : ''; %>
+              name="<%= role[index].id_role %>"
+              value="<%= role[index].id_role %>"
+            >
+              <%= role[index].nama_role %>
+            </option>
+            <% } %>
+          </select>
+        </div>
+
         <div class="mb-3">
           <input
             value=""
