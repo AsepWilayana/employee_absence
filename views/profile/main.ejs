@@ -1,0 +1,142 @@
+<div class="container mt-5">
+  <h1>Update Profile</h1>
+  <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
+    <div class="card-body">
+    <div class="row">
+    <div class="col-4">
+      <img
+      src="/uploads/<%= pegawai.photo %>"
+      class="card-img-top rounded-circle mb-2"
+    />
+    </div>
+    <div class="col-8">
+      <form
+        action="profile/<%= pegawai.id_pegawai %>"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="input-group mb-3">
+          <input
+            value="<%= pegawai.nip %>"
+            name="nip"
+            type="number"
+            class="form-control"
+            placeholder="Masukkan Nomor Induk Pegawai"
+            aria-label="Masukkan Nomor Induk Pegawai"
+            aria-describedby="basic-addon1"
+            required
+            disabled
+            readonly
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            value="<%= pegawai.name %>"
+            name="name"
+            type="text"
+            class="form-control"
+            placeholder="Masukkan Name"
+            aria-label="Masukkan Name"
+            aria-describedby="basic-addon1"
+            required
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            value="<%= pegawai.alamat %>"
+            name="alamat"
+            type="text"
+            class="form-control"
+            placeholder="Masukkan Alamat"
+            aria-label="Masukkan Alamat"
+            aria-describedby="basic-addon2"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-check-label" for="flexRadioDefault2">
+            Pilih Jenis Kelamin
+          </label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="jk" id="jk1"
+            value="laki-laki" <%= pegawai.jenis_kelamin === 'laki-laki' ?
+            'checked' : ''; %>/>
+            <label class="form-check-label" for="jk1"> Laki-laki </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="jk" id="jk2"
+            value="perempuan" <%= pegawai.jenis_kelamin === 'perempuan' ?
+            'checked' : ''; %> />
+            <label class="form-check-label" for="flexRadioDefault2">
+              Perempuan
+            </label>
+          </div>
+        </div>
+        <!-- <label class="form-check-label" for="flexRadioDefault2">
+          Pilih Photo
+        </label> -->
+        <div class="mb-3">
+          <!-- <img
+            src="/uploads/<%# pegawai.photo %>"
+            class="card-img-top w-25 rounded mb-2"
+          /> -->
+          <input
+            class="form-control"
+            type="file"
+            id="formFile"
+            name="profile-file"
+          />
+          <div class="text-danger">
+            *Photo jika tidak ada perubahan biarkan saja kosong
+          </div>
+        </div>
+
+        <div class="input-group mb-3">
+          <select
+            class="form-select"
+            name="role"
+            aria-label="Default select example"
+            disabled
+            readonly
+          >
+            <% for(let index=0; index < role.length; index++){ %>
+            <option <%= pegawai.id_role === role[index].id_role ?
+            'selected' : ''; %>
+              name="<%= role[index].id_role %>"
+              value="<%= role[index].id_role %>"
+            >
+              <%= role[index].nama_role %>
+            </option>
+            <% } %>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <input
+            value=""
+            name="password"
+            type="password"
+            class="form-control"
+            placeholder="Masukkan password"
+            aria-label="Masukkan password"
+            aria-describedby="basic-addon1"
+          />
+          <label class="text-danger">
+            *Password jika tidak ada perubahan biarkan saja kosong
+          </label>
+        </div>
+
+        <div class="input-group mb-3">
+          <div class="m-1">
+            <button class="btn btn-primary">
+              <i class="bi bi-send-fill"></i> Update Data
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+      
+    </div>
+  </div>
+</div>

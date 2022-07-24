@@ -377,7 +377,7 @@ app.get("/history", async (req, res) => {
       );
       const id_pegawai = getpegawai.rows[0].id_pegawai;
       const getAbsensiById = await pool.query(
-        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}';`
+        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
       );
       const pegawai = getpegawai.rows[0];
       const absensi = getAbsensiById.rows;
@@ -392,6 +392,77 @@ app.get("/history", async (req, res) => {
     }
   } catch (error) {
     res.status(404).json({ message: error.message });
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    var sessions = req.session;
+    if (sessions.nip) {
+      const title = "Web Server EJS";
+      const nip = sessions.nip;
+      const getPegawaiById = await pool.query(
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
+      );
+      const pegawai = getPegawaiById.rows[0];
+      if (!pegawai) {
+        res
+          .status(404)
+          .render("error_page", { respone: "page not found : 404" });
+      }
+
+      const roles = await pool.query(`SELECT * FROM role;`);
+      const role = roles.rows;
+
+      res.render("profile/main", {
+        title: title,
+        pegawai,
+        sessions,
+        role,
+      });
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+});
+
+app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const newname = req.body.name;
+    const newalamat = req.body.alamat;
+    const newjk = req.body.jk;
+    const newphoto = req.file?.originalname;
+    const newpassword = req.body.password;
+    var hash = bcrypt.hashSync(newpassword, salt);
+    const findData = await pool.query(
+      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
+    );
+
+    const pegawai = findData.rows[0];
+
+    // console.log(findData);
+    if (findData.rows.length > 0) {
+      // buat objek baru
+      const Newname = newname || pegawai.name;
+      const Newalamat = newalamat || pegawai.alamat;
+      const Newjk = newjk || pegawai.jenis_kelamin;
+      const Newphoto = newphoto || pegawai.photo;
+      const Newpassword = hash || pegawai.password;
+
+      pool.query(`UPDATE pegawai
+      SET name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}' ,password='${Newpassword}'
+      WHERE id_pegawai = '${id}';`);
+    } else {
+      console.log("data tidak ada");
+      return;
+    }
+    // res.render("contact", { title: title, cont, respone });
+    res.redirect("/profile");
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
