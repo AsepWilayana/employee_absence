@@ -1,4 +1,41 @@
 <div class="container mt-5">
-  <h1>Halaman Dashboard, <%= sessions.name%></h1>
-  <%= sessions.nip %> <%= sessions.nama_role %>
+  <h1>Hello, <%= sessions.name%></h1>
+  <div class="card mt-5 w-50 shadow p-3 mb-5 bg-body rounded">
+    <div class="card-body">
+      <div class="row row-cols-2">
+        <div class="col">
+          <b> Absen Masuk </b>
+          <input
+            value=" <%if (absensi[0].jam_masuk == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_masuk%> <% } %>"
+            type="text"
+            class="form-control w-75 text-center fs-2"
+            aria-describedby="basic-addon1"
+            readonly
+            disabled
+          />
+        </div>
+        <div class="col">
+          <b> Absen Keluar </b>
+          <input
+            value="<%if (absensi[0].jam_keluar == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_keluar %> <% } %>"
+            type="text"
+            class="form-control w-75 text-center fs-2"
+            aria-describedby="basic-addon1"
+            readonly
+            disabled
+          />
+        </div>
+        <div class="col">
+          <a class="btn btn-success mt-3" href="/checkin/<%= sessions.nip %> "
+            >Check IN</a
+          >
+        </div>
+        <div class="col">
+          <a class="btn btn-success mt-3" href="/checkout/<%= sessions.nip %> "
+            >Check Out</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

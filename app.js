@@ -37,8 +37,8 @@ async function sendData() {
   var datestring =
     d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 
-  var datestring =
-    d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  // var datestring =
+  //   d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   console.log(datestring);
   const getpegawai = await pool.query(`SELECT * FROM pegawai;`);
   const pegawai = getpegawai.rows;
@@ -110,7 +110,7 @@ app.post("/login", async (req, res) => {
           sessions.photo = pegawai[0].photo;
           sessions.name = pegawai[0].name;
           if (sessions.nip) {
-            res.render("dashboard/main", { sessions });
+            res.redirect("/dashboard");
           } else {
             res.flash("msg", "NIP dan PASSWORD salah");
             res.redirect("/");
@@ -136,7 +136,15 @@ app.get("/dashboard", async (req, res) => {
   var sessions = req.session;
   const title = "Dashboard";
   if (sessions.nip) {
-    res.render("dashboard/main", { title: title, sessions });
+    const getAbsensi = await pool.query(
+      `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai FROM pegawai 
+      JOIN absensi on absensi.id_pegawai = pegawai.id_pegawai 
+      where tanggal = now()::date AND pegawai.nip = '${sessions.nip}'
+      order by absensi.tanggal asc;`
+    );
+    const absensi = getAbsensi.rows;
+    console.log(absensi);
+    res.render("dashboard/main", { title: title, sessions, absensi });
   } else {
     res.redirect("/");
   }
@@ -279,6 +287,82 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
     res.redirect("/pegawai?updated=success");
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+app.get("/checkin/:id", async (req, res) => {
+  try {
+    var sessions = req.session;
+    if (sessions.nip) {
+      const nip = req.params.id;
+      const keterangan = "belum absen keluar";
+      var d = new Date();
+      var time = d.getHours() + ":" + d.getMinutes();
+      var datestring =
+        d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear();
+
+      console.log(datestring);
+      const getpegawai = await pool.query(
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
+      );
+      const pegawaiId = getpegawai.rows[0].id_pegawai;
+      const getAbsensi = await pool.query(
+        `SELECT * FROM absensi 
+      where tanggal = now()::date AND id_pegawai = '${pegawaiId}'`
+      );
+      const absensi = getAbsensi.rows[0].jam_keluar;
+      if (absensi == null) {
+        await pool.query(`UPDATE absensi
+      SET jam_masuk='${time}', keterangan='${keterangan}'
+      WHERE id_pegawai = '${pegawaiId}' AND tanggal ='${datestring}';`);
+        console.log("success absen masuk");
+        res.redirect("/dashboard");
+      } else {
+        res.redirect("/dashboard");
+      }
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+});
+
+app.get("/checkout/:id", async (req, res) => {
+  try {
+    var sessions = req.session;
+    if (sessions.nip) {
+      const nip = req.params.id;
+      const keterangan = "sudah absen masuk dan keluar";
+      var d = new Date();
+      var time = d.getHours() + ":" + d.getMinutes();
+      var datestring =
+        d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear();
+
+      console.log(datestring);
+      const getpegawai = await pool.query(
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
+      );
+      const pegawaiId = getpegawai.rows[0].id_pegawai;
+      const getAbsensi = await pool.query(
+        `SELECT * FROM absensi 
+      where tanggal = now()::date AND id_pegawai = '${pegawaiId}'`
+      );
+      const absensi = getAbsensi.rows[0].jam_keluar;
+      if (absensi == null) {
+        await pool.query(`UPDATE absensi
+        SET jam_keluar='${time}', keterangan='${keterangan}'
+        WHERE id_pegawai = '${pegawaiId}' AND tanggal ='${datestring}';`);
+        console.log("success absen masuk");
+        res.redirect("/dashboard");
+      } else {
+        res.redirect("/dashboard");
+      }
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
   }
 });
 
