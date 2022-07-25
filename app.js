@@ -17,6 +17,42 @@ var path = require("path");
 var morgan = require("morgan");
 var cron = require("node-cron");
 var bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+var flash = require("connect-flash");
+
+// create "middleware"
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+app.use("/uploads", express.static("uploads"));
+app.use(express.json());
+// untuk membuka/akses image
+app.use(express.static("public/"));
+app.use("public/", express.static("public"));
+
+app.use(expressLayouts);
+app.set("layout", "layout/layout");
+
+app.use(express.urlencoded({ extended: true }));
+
+// morgan.token("json", function (req, res) {
+//   return JSON.stringify({
+//     url: req.url,
+//     method: req.method,
+//     httpVersion: req.httpVersion,
+//   });
+// });
+
+app.use(cookieParser("secret"));
+var hour = 3600000;
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: hour },
+  })
+);
+app.use(flash());
 
 cron.schedule("01 00 * * *", () => {
   sendData().then(console.log("success Generate Absensi"));
@@ -50,42 +86,9 @@ async function sendData() {
   }
 }
 
-// morgan.token("json", function (req, res) {
-//   return JSON.stringify({
-//     url: req.url,
-//     method: req.method,
-//     httpVersion: req.httpVersion,
-//   });
-// });
-
-var hour = 3600000;
-app.use(
-  session({
-    secret: "keyboard cat",
-    resave: true,
-    saveUninitialized: true,
-    cookie: { maxAge: hour },
-  })
-);
-app.use(require("flash")());
-
-// create "middleware"
-app.set("view engine", "ejs");
-app.use(express.static(__dirname + "/public"));
-app.use("/uploads", express.static("uploads"));
-app.use(express.json());
-// untuk membuka/akses image
-app.use(express.static("public/"));
-app.use("public/", express.static("public"));
-
-app.use(expressLayouts);
-app.set("layout", "layout/layout");
-
-app.use(express.urlencoded({ extended: true }));
-
 app.get("/", async (req, res) => {
   const title = "Dashboard";
-  msg = "";
+  msg = req.flash("msg");
   const sessions = "";
   res.render("login/main", { title: title, msg, sessions });
 });
@@ -100,28 +103,35 @@ app.post("/login", async (req, res) => {
         `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
       );
       const pegawai = getpegawai.rows;
+      const pass = getpegawai.rows[0].password;
+      // console.log(pass);
+      // console.log(password);
       if (pegawai.length > 0) {
-        const match = bcrypt.compare(password, pegawai[0].password);
-        if (match) {
-          //login
+        const result = await bcrypt.compare(req.body.password, pass);
+        //console.log(result);
+        if (result === true) {
           var sessions = req.session;
           sessions.nip = pegawai[0].nip;
           sessions.nama_role = pegawai[0].nama_role;
           sessions.photo = pegawai[0].photo;
           sessions.name = pegawai[0].name;
           if (sessions.nip) {
+            req.flash("msg", "selamat datang");
             res.redirect("/dashboard");
           } else {
-            res.flash("msg", "NIP dan PASSWORD salah");
+            req.flash("msg", "NIP dan PASSWORD salah");
             res.redirect("/");
           }
+        } else {
+          req.flash("msg", "NIP dan PASSWORD salah ");
+          res.redirect("/");
         }
       } else {
-        res.flash("msg", "NIP dan PASSWORD salah");
+        req.flash("msg", "NIP dan PASSWORD salah ");
         res.redirect("/");
       }
     } else {
-      res.flash("msg", "NIP dan PASSWORD salah");
+      req.flash("msg", "NIP dan PASSWORD salah");
       res.redirect("/");
     }
   } catch (error) {
@@ -135,6 +145,7 @@ app.use(pegawaiRoute);
 app.get("/dashboard", async (req, res) => {
   var sessions = req.session;
   const title = "Dashboard";
+  msg = req.flash("msg");
   if (sessions.nip) {
     const getAbsensi = await pool.query(
       `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai FROM pegawai 
@@ -144,7 +155,7 @@ app.get("/dashboard", async (req, res) => {
     );
     const absensi = getAbsensi.rows;
     // console.log(absensi);
-    res.render("dashboard/main", { title: title, sessions, absensi });
+    res.render("dashboard/main", { title: title, sessions, absensi, msg });
   } else {
     res.redirect("/");
   }
@@ -228,7 +239,7 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
     const password = req.body.password;
     const status = "aktif";
     const role = req.body.role;
-    var hash = bcrypt.hashSync(password, salt);
+    var hash = bcrypt.hashSync(password, 10);
 
     const pegawaiOne = await pool.query(
       `SELECT nip FROM pegawai order by nip desc limit 1;`
@@ -240,7 +251,9 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
       `INSERT INTO pegawai (
 	nip, name, alamat, jenis_kelamin, photo, password, status, id_role) values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}','${status}','${role}')`
     );
-    res.redirect("/pegawai?add=success");
+
+    req.flash("msg", "data berhasil ditambahkan");
+    res.redirect("/pegawai");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -255,13 +268,18 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
     const newphoto = req.file?.originalname;
     const newpassword = req.body.password;
     const role = req.body.role;
-    var hash = bcrypt.hashSync(newpassword, salt);
+    var hash = bcrypt.hashSync(newpassword, 10);
     const findData = await pool.query(
       `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
     );
-
     const pegawai = findData.rows[0];
 
+    let Newpassword = "";
+    if (newpassword == "") {
+      Newpassword = pegawai.password;
+    } else {
+      Newpassword = hash;
+    }
     // console.log(findData);
     if (findData.rows.length > 0) {
       //dihapus dulu data yg sudah ketemmu
@@ -273,7 +291,7 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
       const Newalamat = newalamat || pegawai.alamat;
       const Newjk = newjk || pegawai.jenis_kelamin;
       const Newphoto = newphoto || pegawai.photo;
-      const Newpassword = hash || pegawai.password;
+      //const Newpassword = hash || pegawai.password;
       const Role = role || pegawai.id_role;
 
       pool.query(`UPDATE pegawai
@@ -284,7 +302,8 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
       return;
     }
     // res.render("contact", { title: title, cont, respone });
-    res.redirect("/pegawai?updated=success");
+    req.flash("msg", "data berhasil diupdate");
+    res.redirect("/pegawai");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -310,14 +329,16 @@ app.get("/checkin/:id", async (req, res) => {
         `SELECT * FROM absensi 
       where tanggal = now()::date AND id_pegawai = '${pegawaiId}'`
       );
-      const absensi = getAbsensi.rows[0].jam_keluar;
+      const absensi = getAbsensi.rows[0].jam_masuk;
       if (absensi == null) {
         await pool.query(`UPDATE absensi
       SET jam_masuk='${time}', keterangan='${keterangan}'
       WHERE id_pegawai = '${pegawaiId}' AND tanggal ='${datestring}';`);
         console.log("success absen masuk");
+        req.flash("msg", "Success Absen Masuk");
         res.redirect("/dashboard");
       } else {
+        req.flash("msg", "Sudah Absen Masuk");
         res.redirect("/dashboard");
       }
     } else {
@@ -353,9 +374,11 @@ app.get("/checkout/:id", async (req, res) => {
         await pool.query(`UPDATE absensi
         SET jam_keluar='${time}', keterangan='${keterangan}'
         WHERE id_pegawai = '${pegawaiId}' AND tanggal ='${datestring}';`);
-        console.log("success absen masuk");
+        console.log("success absen keluar");
+        req.flash("msg", "Success Absen Keluar");
         res.redirect("/dashboard");
       } else {
+        req.flash("msg", "Sudah Absen Keluar");
         res.redirect("/dashboard");
       }
     } else {
@@ -414,11 +437,13 @@ app.get("/profile", async (req, res) => {
       const roles = await pool.query(`SELECT * FROM role;`);
       const role = roles.rows;
 
+      msg = req.flash("msg");
       res.render("profile/main", {
         title: title,
         pegawai,
         sessions,
         role,
+        msg,
       });
     } else {
       res.redirect("/");
@@ -436,12 +461,18 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
     const newjk = req.body.jk;
     const newphoto = req.file?.originalname;
     const newpassword = req.body.password;
-    var hash = bcrypt.hashSync(newpassword, salt);
+    var hash = bcrypt.hashSync(newpassword, 10);
     const findData = await pool.query(
       `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
     );
 
     const pegawai = findData.rows[0];
+    let Newpassword = "";
+    if (newpassword == "") {
+      Newpassword = pegawai.password;
+    } else {
+      Newpassword = hash;
+    }
 
     // console.log(findData);
     if (findData.rows.length > 0) {
@@ -450,7 +481,8 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
       const Newalamat = newalamat || pegawai.alamat;
       const Newjk = newjk || pegawai.jenis_kelamin;
       const Newphoto = newphoto || pegawai.photo;
-      const Newpassword = hash || pegawai.password;
+
+      //console.log(hash);
 
       pool.query(`UPDATE pegawai
       SET name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}' ,password='${Newpassword}'
@@ -459,7 +491,7 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
       console.log("data tidak ada");
       return;
     }
-    // res.render("contact", { title: title, cont, respone });
+    req.flash("msg", "Success Update Data");
     res.redirect("/profile");
   } catch (error) {
     res.status(400).json({ message: error.message });

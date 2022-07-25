@@ -1,6 +1,6 @@
 <div class="container mt-5">
-  <% if(msg !== '') { %>
-  <div class="alert alert-danger" role="alert"><%= msg %></div>
+  <% if(msg.length !== 0) { %>
+  <div class="alert alert-danger" role="alert"><b><%= msg %></b></div>
   <% } %>
   <h1>halaman login</h1>
   <form action="/login" method="post">

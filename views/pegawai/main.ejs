@@ -1,4 +1,9 @@
 <div class="container mt-5">
+  <% if(msg.length !== 0) { %>
+  <div class="alert alert-success" role="alert">
+    <b><%= msg %></b>
+  </div>
+  <% } %>
   <h1>Pegawai List</h1>
   <a href="/pegawai/add" class="btn btn-primary mt-3"
     ><i class="bi bi-person-plus-fill"></i> Tambah Data Pegawai

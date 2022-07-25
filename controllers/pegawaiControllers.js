@@ -4,25 +4,31 @@ var salt = bcrypt.genSaltSync(10);
 const express = require("express");
 const app = express();
 const session = require("express-session");
+var flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
 var hour = 3600000;
+
+app.use(cookieParser("secret"));
 app.use(
   session({
-    secret: "keyboard cat",
+    secret: "secret",
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: hour },
   })
 );
+app.use(flash());
 
 const getPegawai = async (req, res) => {
   try {
     var sessions = req.session;
+    msg = req.flash("msg");
     if (sessions.nip) {
       const pegawaiAll = await pool.query(
         `SELECT * FROM pegawai order by id_pegawai asc;`
       );
       const pegawai = pegawaiAll.rows;
-      res.render("pegawai/main", { pegawai, sessions });
+      res.render("pegawai/main", { pegawai, sessions, msg });
     } else {
       res.redirect("/");
     }
@@ -120,7 +126,8 @@ const deletePegawai = async (req, res) => {
     if (sessions.nip) {
       const id = req.params.id;
       await pool.query(`DELETE FROM pegawai WHERE id_pegawai = '${id}';`);
-      res.redirect("/pegawai?deleted=success");
+      req.flash("msg", "data berhasil delete");
+      res.redirect("/pegawai");
     } else {
       res.redirect("/");
     }
@@ -138,7 +145,8 @@ const nonaktifPegawai = async (req, res) => {
       await pool.query(`UPDATE pegawai
       SET status='${nonaktif}'
       WHERE id_pegawai = '${id}';`);
-      res.redirect("/pegawai?deleted=success");
+      req.flash("msg", "data berhasil dinonaktifkan");
+      res.redirect("/pegawai");
     } else {
       res.redirect("/");
     }
