@@ -25,7 +25,7 @@ const getPegawai = async (req, res) => {
     msg = req.flash("msg");
     if (sessions.nip) {
       const pegawaiAll = await pool.query(
-        `SELECT * FROM pegawai order by id_pegawai asc;`
+        `SELECT * FROM pegawai WHERE id_role = '3' order by id_pegawai asc;`
       );
       const pegawai = pegawaiAll.rows;
       res.render("pegawai/main", { pegawai, sessions, msg });

@@ -33,6 +33,11 @@ app.use(expressLayouts);
 app.set("layout", "layout/layout");
 
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  morgan("dev", {
+    stream: fs.createWriteStream("./access.log", { flags: "a" }),
+  })
+);
 
 // morgan.token("json", function (req, res) {
 //   return JSON.stringify({
@@ -89,8 +94,18 @@ async function sendData() {
 app.get("/", async (req, res) => {
   const title = "Dashboard";
   msg = req.flash("msg");
-  const sessions = "";
-  res.render("login/main", { title: title, msg, sessions });
+  // const sessions = "";
+
+  var sessions = req.session;
+  if (sessions.nip) {
+    res.redirect("/dashboard");
+  } else {
+    res.render("login/main", {
+      title: title,
+      msg,
+      sessions,
+    });
+  }
 });
 
 app.post("/login", async (req, res) => {
@@ -150,12 +165,21 @@ app.get("/dashboard", async (req, res) => {
     const getAbsensi = await pool.query(
       `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai FROM pegawai 
       JOIN absensi on absensi.id_pegawai = pegawai.id_pegawai 
-      where tanggal = now()::date AND pegawai.nip = '${sessions.nip}'
+      where tanggal = now()::date AND pegawai.nip = '${sessions.nip}' 
       order by absensi.tanggal asc;`
     );
     const absensi = getAbsensi.rows;
+    const jam_masuk = "";
+    const jam_keluar = "";
     // console.log(absensi);
-    res.render("dashboard/main", { title: title, sessions, absensi, msg });
+    res.render("dashboard/main", {
+      title: title,
+      sessions,
+      absensi,
+      msg,
+      jam_masuk,
+      jam_keluar,
+    });
   } else {
     res.redirect("/");
   }
@@ -182,8 +206,10 @@ app.get("/absensi", async (req, res) => {
   const title = "Dashboard";
   var sessions = req.session;
   const getAbsensi = await pool.query(
-    `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai FROM pegawai JOIN absensi on absensi.id_pegawai = pegawai.id_pegawai where tanggal = now()::date 
-order by absensi.tanggal asc;`
+    `SELECT absensi.*, pegawai.nip, pegawai.name, pegawai.id_pegawai, pegawai.id_role FROM pegawai 
+    JOIN absensi on absensi.id_pegawai = pegawai.id_pegawai 
+    WHERE tanggal = now()::date AND id_role ='3'
+    order by absensi.tanggal asc;`
   );
   const absensi = getAbsensi.rows;
 
@@ -207,20 +233,51 @@ app.get("/absensi/detail/:id", async (req, res) => {
     if (sessions.nip) {
       const title = "Pegawai";
       const id = req.params.id;
+      const tgl_awal = req.query.tgl_awal;
+      const tgl_akhir = req.query.tgl_akhir;
+      const jam_kerja = req.query.jam_kerja;
+
       const getpegawai = await pool.query(
         `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
       );
       const id_pegawai = getpegawai.rows[0].id_pegawai;
-      const getAbsensiById = await pool.query(
-        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
-      );
+
+      let query = "";
+      if (tgl_awal == undefined && tgl_akhir == undefined) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja == ""
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja === "lebih_besar"
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') >= '09:00:00' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja === "lebih_kecil"
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') < '09:00:00' order by tanggal desc;`;
+      }
+
+      const getAbsensiById = await pool.query(query);
+
       const pegawai = getpegawai.rows[0];
       const absensi = getAbsensiById.rows;
+      console.log(absensi);
+      console.log(jam_kerja);
       res.render("absensi/detail", {
         title: title,
         pegawai,
         absensi,
         sessions,
+        tgl_akhir,
+        tgl_awal,
       });
     } else {
       res.redirect("/");
@@ -392,6 +449,9 @@ app.get("/checkout/:id", async (req, res) => {
 app.get("/history", async (req, res) => {
   try {
     var sessions = req.session;
+    const tgl_awal = req.query.tgl_awal;
+    const tgl_akhir = req.query.tgl_akhir;
+    const jam_kerja = req.query.jam_kerja;
     if (sessions.nip) {
       const title = "Pegawai";
       const nip = sessions.nip;
@@ -399,9 +459,30 @@ app.get("/history", async (req, res) => {
         `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
       );
       const id_pegawai = getpegawai.rows[0].id_pegawai;
-      const getAbsensiById = await pool.query(
-        `SELECT * FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`
-      );
+      let query = "";
+      if (tgl_awal == undefined && tgl_akhir == undefined) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja == ""
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja === "lebih_besar"
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') >= '09:00:00' order by tanggal desc;`;
+      } else if (
+        tgl_awal !== undefined &&
+        tgl_akhir !== undefined &&
+        jam_kerja === "lebih_kecil"
+      ) {
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') < '09:00:00' order by tanggal desc;`;
+      }
+
+      const getAbsensiById = await pool.query(query);
       const pegawai = getpegawai.rows[0];
       const absensi = getAbsensiById.rows;
       res.render("absensi/history_absensi", {
@@ -409,6 +490,9 @@ app.get("/history", async (req, res) => {
         pegawai,
         absensi,
         sessions,
+        tgl_awal,
+        tgl_akhir,
+        jam_kerja,
       });
     } else {
       res.redirect("/");
@@ -501,6 +585,12 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
 app.use("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
+});
+
+app.get("/product/:id", (req, res) => {
+  res.send(
+    "product id :" + req.params.id + "<br/>" + "category:" + req.query.category
+  );
 });
 
 app
