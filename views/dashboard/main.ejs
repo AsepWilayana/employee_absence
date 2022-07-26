@@ -3,9 +3,9 @@
   <div class="alert alert-success" role="alert">
     <b><%= msg %></b>
   </div>
-  <% } %>
-
+  <% } %> <% if(msg.absensi !== 0) { %>
   <h1>Hello, <%= sessions.name%></h1>
+  <% if(sessions.nama_role === 'pegawai') { %>
   <div class="card mt-5 w-50 shadow p-3 mb-5 bg-body rounded">
     <div class="card-body">
       <div class="row row-cols-2">
@@ -32,16 +32,46 @@
           />
         </div>
         <div class="col">
-          <a class="btn btn-success mt-3" href="/checkin/<%= sessions.nip %> "
+          <%if (absensi[0].jam_masuk !== null){ %>
+          <a
+            class="btn btn-secondary mt-3 disabled"
+            href="/checkin/<%= sessions.nip %>"
+            role="button"
+            aria-disabled="true"
             >Check IN</a
           >
+          <% } else { %>
+          <a class="btn btn-success mt-3" href="/checkin/<%= sessions.nip %>"
+            >Check IN</a
+          >
+          <% } %>
         </div>
         <div class="col">
+          <%if (absensi[0].jam_masuk == null){ %>
+          <a
+            class="btn btn-secondary mt-3 disabled"
+            href="/checkin/<%= sessions.nip %>"
+            role="button"
+            aria-disabled="true"
+            >Check IN</a
+          >
+          <% } else { %> <%if (absensi[0].jam_keluar !== null){ %>
+          <a
+            class="btn btn-secondary mt-3 disabled"
+            href="/checkin/<%= sessions.nip %>"
+            role="button"
+            aria-disabled="true"
+            >Check IN</a
+          >
+          <% } else { %>
+
           <a class="btn btn-success mt-3" href="/checkout/<%= sessions.nip %> "
             >Check Out</a
           >
+          <% } %><% } %>
         </div>
       </div>
     </div>
   </div>
+  <% } %> <% } %>
 </div>

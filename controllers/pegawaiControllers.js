@@ -66,26 +66,35 @@ const getPegawaiById = async (req, res) => {
   }
 };
 
-// const savePegawai = async (res, req) => {
-//   try {
-//     const nip = req.body.nip;
-//     const name = req.body.name;
-//     const alamat = req.body.alamat;
-//     const jk = req.body.jk;
-//     const foto = req.file.originalname;
-//     const password = req.body.password;
-//     var hash = bcrypt.hashSync(password, salt);
-//     const title = "Web Server EJS";
+const savePegawai = async (res, req) => {
+  try {
+    const name = req.body.name;
+    const alamat = req.body.alamat;
+    const jk = req.body.jk;
+    const foto = req.file?.originalname || "default.png";
+    const password = req.body.password;
+    const status = "aktif";
+    const role = req.body.role;
+    var hash = bcrypt.hashSync(password, 10);
 
-//     await pool.query(
-//       `INSERT INTO pegawai (
-// 	nip, name, alamat, jenis_kelamin, photo, password) values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}')`
-//     );
-//     res.redirect("/pegawai?add=success");
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
+    const pegawaiOne = await pool.query(
+      `SELECT nip FROM pegawai order by nip desc limit 1;`
+    );
+    const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
+
+    const title = "Web Server EJS";
+    await pool.query(
+      `INSERT INTO pegawai (
+	nip, name, alamat, jenis_kelamin, photo, password, status, id_role) 
+  values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}','${status}','${role}')`
+    );
+
+    req.flash("msg", "data berhasil ditambahkan");
+    res.redirect("/pegawai");
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
 
 const updatePegawai = async (req, res) => {
   try {
@@ -155,10 +164,31 @@ const nonaktifPegawai = async (req, res) => {
   }
 };
 
+const formPegawai = async (req, res) => {
+  const title = "pegawai";
+  var sessions = req.session;
+  if (sessions.nip) {
+    const pegawaiOne = await pool.query(
+      `SELECT nip FROM pegawai order by nip desc limit 1;`
+    );
+
+    const roles = await pool.query(
+      `SELECT * FROM role where nama_role != 'superadmin';`
+    );
+    const role = roles.rows;
+    const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
+    res.render("pegawai/add", { title: title, nip, role, sessions });
+  } else {
+    res.redirect("/");
+  }
+};
+
 module.exports = {
   getPegawai,
   getPegawaiById,
   deletePegawai,
   updatePegawai,
   nonaktifPegawai,
+  formPegawai,
+  savePegawai,
 };
