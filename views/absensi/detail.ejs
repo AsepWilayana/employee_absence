@@ -1,142 +1,152 @@
 <div class="container mt-5">
-  <h1>Detail Pegawai</h1>
-  <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
-    <img
-      src="/uploads/<%= pegawai.photo %>"
-      class="card-img-top w-25 rounded mb-2"
-    />
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <i class="bi bi-person-fill"></i> Nomor Induk Pegawai :
-        <b><%= pegawai.nip %></b>
-      </li>
-      <li class="list-group-item">
-        <i class="bi bi-person-fill"></i> Nama : <b><%= pegawai.name %></b>
-      </li>
-      <li class="list-group-item">
-        <i class="bi bi-envelope-fill"></i> Alamat :
-        <b><%= pegawai.alamat %></b>
-      </li>
-      <li class="list-group-item">
-        <i class="bi bi-phone-fill"></i> Jenis Kelamin :
-        <b><%= pegawai.jenis_kelamin %></b>
-      </li>
-      <li class="list-group-item">
-        <i class="bi bi-phone-fill"></i> status :
-        <b
-          ><span
-            class="<%= pegawai.status === 'aktif' ? 'badge bg-success' : 'badge bg-danger' %>"
-            ><%= pegawai.status %></span
-          ></b
-        >
-      </li>
+  <div class="content-page">
+    <div class="content">
+      <div class="mt-5">
+        <h1>Detail Pegawai</h1>
+      </div>
+      <div
+        class="card shadow mt-3 p-3 mb-5 bg-body rounded"
+        style="width: 50rem"
+      >
+        <img
+          src="/uploads/<%= pegawai.photo %>"
+          class="card-img-top w-25 rounded mb-2"
+        />
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <i class="bi bi-person-fill"></i> Nomor Induk Pegawai :
+            <b><%= pegawai.nip %></b>
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-person-fill"></i> Nama : <b><%= pegawai.name %></b>
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-envelope-fill"></i> Alamat :
+            <b><%= pegawai.alamat %></b>
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-phone-fill"></i> Jenis Kelamin :
+            <b><%= pegawai.jenis_kelamin %></b>
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-phone-fill"></i> status :
+            <b
+              ><span
+                class="<%= pegawai.status === 'aktif' ? 'badge bg-success' : 'badge bg-danger' %>"
+                ><%= pegawai.status %></span
+              ></b
+            >
+          </li>
 
-      <li class="list-group-item">
-        <i class="bi bi-phone-fill"></i> Role :
-        <b><%= pegawai.nama_role %></b>
-      </li>
-      <!-- <li class="list-group-item">
+          <li class="list-group-item">
+            <i class="bi bi-phone-fill"></i> Role :
+            <b><%= pegawai.nama_role %></b>
+          </li>
+          <!-- <li class="list-group-item">
         <i class="bi bi-phone-fill"></i> password :
         <b><%# pegawai.password %></b>
       </li> -->
-      <li class="list-group-item">
-        <a href="/absensi" class="btn btn-dark"
-          ><i class="bi bi-arrow-left-circle-fill"></i> Kembali</a
-        >
-      </li>
-    </ul>
-  </div>
-  <h1>History Absensi</h1>
-  <% const d = new Date(); %> <% const c = new Date(); c.setMonth(d.getMonth() -
-  1); %>
-  <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
-    <form
-      action="/absensi/detail/<%=pegawai.id_pegawai %>?tgl_awal & tgl_akhir"
-      method="get"
-    >
-      <div class="row">
-        <div class="col">
-          <label for="">Tanggal Awal</label>
-          <input
-            value="<%= tgl_awal || c.toISOString().slice(0,10);%>"
-            name="tgl_awal"
-            type="date"
-            class="form-control"
-            placeholder="tanggal Awal"
-            aria-label="tanggal Awal"
-            aria-describedby="basic-addon1"
-          />
-        </div>
-        <div class="col">
-          <label for="">Tanggal Akhir</label>
-          <input
-            value="<%= tgl_akhir || d.toISOString().slice(0,10);%>"
-            name="tgl_akhir"
-            type="date"
-            class="form-control"
-            placeholder="Tanggal Akhir"
-            aria-label="Tanggal Akhir"
-            aria-describedby="basic-addon1"
-          />
-        </div>
-        <div class="col mt-4">
-          <div class="input-group mb-3">
-            <select
-              class="form-select"
-              name="jam_kerja"
-              aria-label="Default select example"
+          <li class="list-group-item">
+            <a href="/absensi" class="btn btn-dark"
+              ><i class="bi bi-arrow-left-circle-fill"></i> Kembali</a
             >
-              <option selected value="">Pilih Jam Kerja</option>
-              <option name="lebih_besar" value="lebih_besar">
-                Jam Kerja Lebih dari 9 Jam
-              </option>
-              <option name="lebih_kecil" value="lebih_kecil">
-                Jam Kerja Kurang dari 9 Jam
-              </option>
-            </select>
+          </li>
+        </ul>
+      </div>
+      <h1>History Absensi</h1>
+      <% const d = new Date(); %> <% const c = new Date();
+      c.setMonth(d.getMonth() - 1); %>
+      <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
+        <form
+          action="/absensi/detail/<%=pegawai.id_pegawai %>?tgl_awal & tgl_akhir"
+          method="get"
+        >
+          <div class="row">
+            <div class="col">
+              <label for="">Tanggal Awal</label>
+              <input
+                value="<%= tgl_awal || c.toISOString().slice(0,10);%>"
+                name="tgl_awal"
+                type="date"
+                class="form-control"
+                placeholder="tanggal Awal"
+                aria-label="tanggal Awal"
+                aria-describedby="basic-addon1"
+              />
+            </div>
+            <div class="col">
+              <label for="">Tanggal Akhir</label>
+              <input
+                value="<%= tgl_akhir || d.toISOString().slice(0,10);%>"
+                name="tgl_akhir"
+                type="date"
+                class="form-control"
+                placeholder="Tanggal Akhir"
+                aria-label="Tanggal Akhir"
+                aria-describedby="basic-addon1"
+              />
+            </div>
+            <div class="col mt-3">
+              <div class="input-group mb-3">
+                <select
+                  class="form-select form-control"
+                  name="jam_kerja"
+                  aria-label="Default select example"
+                >
+                  <option selected value="">Pilih Jam Kerja</option>
+                  <option name="lebih_besar" value="lebih_besar">
+                    Jam Kerja Lebih dari 9 Jam
+                  </option>
+                  <option name="lebih_kecil" value="lebih_kecil">
+                    Jam Kerja Kurang dari 9 Jam
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col">
+              <button class="btn btn-success mt-3">Send</button>
+            </div>
           </div>
-        </div>
-        <div class="col">
-          <button class="btn btn-success mt-4">Send</button>
+        </form>
+      </div>
+      <div class="card shadow-sm p-3 mb-5 bg-body rounded mt-2">
+        <div class="card-body">
+          <table class="table">
+            <thead class="bg-pink text-white">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tanggal</th>
+                <th scope="col">Jam Masuk</th>
+                <th scope="col">Jam Keluar</th>
+                <th scope="col">Jam Kerja</th>
+                <th scope="col">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (absensi < 1) {%>
+              <tr>
+                <td colspan="4" class="text-center">data kosong</td>
+              </tr>
+              <% } else {%> <% for (let index=0; index < absensi.length;
+              index++) { var today =
+              absensi[index].tanggal.toLocaleDateString('id-ID', { weekday:
+              'long', day : 'numeric', month : 'long', year : 'numeric'
+              }).split(' ').join(' '); %>
+
+              <tr>
+                <td scope="row"><%= index+1 %></td>
+                <td><%=today %></td>
+                <td><%=absensi[index].jam_masuk %></td>
+                <td><%=absensi[index].jam_keluar %></td>
+                <td><%=absensi[index].jam_kerja %></td>
+                <td><%=absensi[index].keterangan %></td>
+              </tr>
+              <% } %>
+            </tbody>
+            <%}%>
+          </table>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="card shadow-sm p-3 mb-5 bg-body rounded mt-2">
-    <div class="card-body">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Tanggal</th>
-            <th scope="col">Jam Masuk</th>
-            <th scope="col">Jam Keluar</th>
-            <th scope="col">Jam Kerja</th>
-            <th scope="col">Keterangan</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (absensi < 1) {%>
-          <tr>
-            <td colspan="4" class="text-center">data kosong</td>
-          </tr>
-          <% } else {%> <% for (let index=0; index < absensi.length; index++) {
-          var today = absensi[index].tanggal.toLocaleDateString('id-ID', {
-          weekday: 'long', day : 'numeric', month : 'long', year : 'numeric'
-          }).split(' ').join(' '); %>
-
-          <tr>
-            <td scope="row"><%= index+1 %></td>
-            <td><%=today %></td>
-            <td><%=absensi[index].jam_masuk %></td>
-            <td><%=absensi[index].jam_keluar %></td>
-            <td><%=absensi[index].jam_kerja %></td>
-            <td><%=absensi[index].keterangan %></td>
-          </tr>
-          <% } %>
-        </tbody>
-        <%}%>
-      </table>
     </div>
   </div>
 </div>

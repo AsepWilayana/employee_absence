@@ -1,77 +1,205 @@
 <div class="container mt-5">
-  <% if(msg.length !== 0) { %>
-  <div class="alert alert-success" role="alert">
-    <b><%= msg %></b>
-  </div>
-  <% } %> <% if(msg.absensi !== 0) { %>
-  <h1>Hello, <%= sessions.name%></h1>
-  <% if(sessions.nama_role === 'pegawai') { %>
-  <div class="card mt-5 w-50 shadow p-3 mb-5 bg-body rounded">
-    <div class="card-body">
-      <div class="row row-cols-2">
-        <div class="col">
-          <b> Absen Masuk </b>
-          <input
-            value="<%if (absensi[0].jam_masuk == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_masuk%> <% } %>"
-            type="text"
-            class="form-control w-75 text-center fs-2"
-            aria-describedby="basic-addon1"
-            readonly
-            disabled
-          />
-        </div>
-        <div class="col">
-          <b> Absen Keluar </b>
-          <input
-            value="<%if (absensi[0].jam_keluar == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_keluar %> <% } %>"
-            type="text"
-            class="form-control w-75 text-center fs-2"
-            aria-describedby="basic-addon1"
-            readonly
-            disabled
-          />
-        </div>
-        <div class="col">
-          <%if (absensi[0].jam_masuk !== null){ %>
-          <a
-            class="btn btn-secondary mt-3 disabled"
-            href="/checkin/<%= sessions.nip %>"
-            role="button"
-            aria-disabled="true"
-            >Check IN</a
-          >
-          <% } else { %>
-          <a class="btn btn-success mt-3" href="/checkin/<%= sessions.nip %>"
-            >Check IN</a
-          >
-          <% } %>
-        </div>
-        <div class="col">
-          <%if (absensi[0].jam_masuk == null){ %>
-          <a
-            class="btn btn-secondary mt-3 disabled"
-            href="/checkin/<%= sessions.nip %>"
-            role="button"
-            aria-disabled="true"
-            >Check IN</a
-          >
-          <% } else { %> <%if (absensi[0].jam_keluar !== null){ %>
-          <a
-            class="btn btn-secondary mt-3 disabled"
-            href="/checkin/<%= sessions.nip %>"
-            role="button"
-            aria-disabled="true"
-            >Check IN</a
-          >
-          <% } else { %>
+  <div class="content-page">
+    <div class="content">
+      <br />
+      <% if(msg.length !== 0) { %>
+      <div class="alert alert-success" role="alert">
+        <b><%= msg %></b>
+      </div>
+      <% } %> <% if(msg.absensi !== 0) { %>
+      <div class="mt-3">
+        <h1>Hello, <%= sessions.name%></h1>
+      </div>
+      <% if(sessions.nama_role !== 'superadmin') {d = new Date(); var today =
+      d.toLocaleDateString('id-ID', { weekday: 'long', day : 'numeric', month :
+      'long', year : 'numeric' }).split(' ').join(' '); %>
+      <div
+        class="card mt-3 w-50 shadow p-3 mb-5 bg-body rounded align-content-center align-items-center"
+      >
+        <div class="card-body">
+          <div>
+            <h1 class="text-center"><b><%= today %></b></h1>
+          </div>
+          <div class="row row-cols-2 mt-4">
+            <div class="col">
+              <b> Absen Masuk </b>
+              <input
+                value="<%if (absensi[0].jam_masuk == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_masuk%> <% } %>"
+                type="text"
+                class="form-control w-75 text-center fs-2"
+                aria-describedby="basic-addon1"
+                readonly
+                disabled
+              />
+            </div>
+            <div class="col">
+              <b> Absen Keluar </b>
+              <input
+                value="<%if (absensi[0].jam_keluar == null){ %>00:00:00<%}else{ %> <%= absensi[0].jam_keluar %> <% } %>"
+                type="text"
+                class="form-control w-75 text-center fs-2"
+                aria-describedby="basic-addon1"
+                readonly
+                disabled
+              />
+            </div>
+            <div class="col">
+              <%if (absensi[0].jam_masuk !== null){ %>
+              <a
+                class="btn btn-secondary mt-3 disabled"
+                href="/checkin/<%= sessions.nip %>"
+                role="button"
+                aria-disabled="true"
+                >Check IN</a
+              >
+              <% } else { %>
+              <a
+                class="btn btn-success mt-3"
+                href="/checkin/<%= sessions.nip %>"
+                >Check IN</a
+              >
+              <% } %>
+            </div>
+            <div class="col">
+              <%if (absensi[0].jam_masuk == null){ %>
+              <a
+                class="btn btn-secondary mt-3 disabled"
+                href="/checkin/<%= sessions.nip %>"
+                role="button"
+                aria-disabled="true"
+                >Check IN</a
+              >
+              <% } else { %> <%if (absensi[0].jam_keluar !== null){ %>
+              <a
+                class="btn btn-secondary mt-3 disabled"
+                href="/checkin/<%= sessions.nip %>"
+                role="button"
+                aria-disabled="true"
+                >Check IN</a
+              >
+              <% } else { %>
 
-          <a class="btn btn-success mt-3" href="/checkout/<%= sessions.nip %> "
-            >Check Out</a
-          >
-          <% } %><% } %>
+              <a
+                class="btn btn-success mt-3"
+                href="/checkout/<%= sessions.nip %> "
+                >Check Out</a
+              >
+              <% } %><% } %>
+            </div>
+          </div>
         </div>
       </div>
+      <% } %> <% } %> <% if(sessions.nama_role === 'superadmin') {%>
+      <div class="row">
+        <div class="col-xl-3 col-md-6">
+          <div class="card widget-box-two bg-purple">
+            <div class="card-body">
+              <div class="media">
+                <div class="media-body wigdet-two-content">
+                  <p class="m-0 text-uppercase text-white" title="Statistics">
+                    Jumlah Pegawai
+                  </p>
+                  <h2 class="text-white">
+                    <span data-plugin="counterup"><%= pegawai.length %></span>
+                    <i class="mdi mdi-arrow-up text-white font-22"></i>
+                  </h2>
+                </div>
+                <div
+                  class="avatar-lg rounded-circle bg-soft-light ml-2 align-self-center"
+                >
+                  <i
+                    class="mdi mdi-chart-line font-22 avatar-title text-white"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card widget-box-two bg-info">
+            <div class="card-body">
+              <div class="media">
+                <div class="media-body wigdet-two-content">
+                  <p class="m-0 text-white text-uppercase" title="User Today">
+                    Absen Masuk
+                  </p>
+                  <h2 class="text-white">
+                    <span data-plugin="counterup"><%= jamMasuk.length%></span>
+                    <i class="mdi mdi-arrow-up text-white font-22"></i>
+                  </h2>
+                </div>
+                <div
+                  class="avatar-lg rounded-circle bg-soft-light ml-2 align-self-center"
+                >
+                  <i
+                    class="mdi mdi-access-point-network font-22 avatar-title text-white"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card widget-box-two bg-pink">
+            <div class="card-body">
+              <div class="media">
+                <div class="media-body wigdet-two-content">
+                  <p
+                    class="m-0 text-uppercase text-white"
+                    title="Request Per Minute"
+                  >
+                    Absen Keluar
+                  </p>
+                  <h2 class="text-white">
+                    <span data-plugin="counterup"><%= jamKeluar.length%></span>
+                    <i class="mdi mdi-arrow-up text-white font-22"></i>
+                  </h2>
+                </div>
+                <div
+                  class="avatar-lg rounded-circle bg-soft-light ml-2 align-self-center"
+                >
+                  <i
+                    class="mdi mdi-timetable font-22 avatar-title text-white"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card widget-box-two bg-success">
+            <div class="card-body">
+              <div class="media">
+                <div class="media-body wigdet-two-content">
+                  <p
+                    class="m-0 text-white text-uppercase"
+                    title="New Downloads"
+                  >
+                    Lebih dari Jam 9
+                  </p>
+                  <h2 class="text-white">
+                    <span data-plugin="counterup"
+                      ><%= jamMasukLebih.length%></span
+                    >
+                    <i class="mdi mdi-arrow-up text-white font-22"></i>
+                  </h2>
+                </div>
+                <div
+                  class="avatar-lg rounded-circle bg-soft-light ml-2 align-self-center"
+                >
+                  <i
+                    class="mdi mdi-cloud-download font-22 avatar-title text-white"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <%}%>
     </div>
   </div>
-  <% } %> <% } %>
 </div>

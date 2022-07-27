@@ -1,0 +1,43 @@
+<div class="container mt-5">
+  <br />
+  <div class="mt-5">
+    <h1>Log Service</h1>
+  </div>
+  <div class="card shadow mt-4 p-3 mb-5 bg-body rounded">
+    <div class="card-body">
+      <div class="table-responsive-sm mt-3">
+        <table class="table">
+          <thead class="bg-pink text-white">
+            <tr>
+              <th scope="col" class="text-center">#</th>
+              <th scope="col" class="text-center">Method</th>
+              <th scope="col" class="text-center text-wrap">URL</th>
+              <th scope="col" class="text-center">tanggal</th>
+              <th scope="col" class="text-center">Role</th>
+              <th scope="col" class="text-center">User</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (log < 1) {%>
+            <tr>
+              <td colspan="7" class="text-center">data kosong</td>
+            </tr>
+            <% } else {%> <% for(let index=0; index < log.length; index++) { %>
+            <% var today = log[index].tanggal.toLocaleDateString('id-ID', {
+            weekday: 'long', day : 'numeric', month : 'long', year : 'numeric',
+            hour:'numeric', minute:'numeric' }).split(' ').join(' '); %>
+            <tr>
+              <td><%= index+1 %></td>
+              <td><%= log[index].method %></td>
+              <td><%= log[index].url %></td>
+              <td><%= today %></td>
+              <td><%= log[index].role %></td>
+              <td><%= log[index].user %></td>
+            </tr>
+            <% } %> <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

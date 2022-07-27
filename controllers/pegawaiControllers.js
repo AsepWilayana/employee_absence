@@ -25,7 +25,7 @@ const getPegawai = async (req, res) => {
     msg = req.flash("msg");
     if (sessions.nip) {
       const pegawaiAll = await pool.query(
-        `SELECT * FROM pegawai WHERE id_role = '3' order by id_pegawai asc;`
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE pegawai.id_role != '1' order by id_pegawai asc;`
       );
       const pegawai = pegawaiAll.rows;
       res.render("pegawai/main", { pegawai, sessions, msg });
@@ -112,7 +112,9 @@ const updatePegawai = async (req, res) => {
           .render("error_page", { respone: "page not found : 404" });
       }
 
-      const roles = await pool.query(`SELECT * FROM role;`);
+      const roles = await pool.query(
+        `SELECT * FROM role where nama_role != 'superadmin';`
+      );
       const role = roles.rows;
 
       res.render("pegawai/update", {
@@ -134,6 +136,7 @@ const deletePegawai = async (req, res) => {
     var sessions = req.session;
     if (sessions.nip) {
       const id = req.params.id;
+      await pool.query(`DELETE FROM absensi WHERE id_pegawai = '${id}';`);
       await pool.query(`DELETE FROM pegawai WHERE id_pegawai = '${id}';`);
       req.flash("msg", "data berhasil delete");
       res.redirect("/pegawai");

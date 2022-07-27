@@ -1,8 +1,61 @@
 <div class="container mt-5">
-  <% if(msg.length !== 0) { %>
-  <div class="alert alert-danger" role="alert"><b><%= msg %></b></div>
-  <% } %>
-  <h1>halaman login</h1>
+  <div class="account-pages my-5 pt-5">
+    <% if(msg.length !== 0) { %>
+    <div class="alert alert-danger" role="alert"><b><%= msg %></b></div>
+    <% } %>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+          <div>
+            <div class="text-center authentication-logo mb-4">
+              <h1>Login</h1>
+            </div>
+
+            <form action="/login" method="post">
+              <div class="form-group mb-3">
+                <label for="emailaddress">Masukkan Nomor Induk Pegawai</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  required=""
+                  placeholder="masukkan Nomor Induk Pegawai"
+                  name="nip"
+                />
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="password">Masukkan Password</label>
+                <input
+                  class="form-control"
+                  type="password"
+                  required=""
+                  id="password"
+                  placeholder="Masukkan Password"
+                  name="password"
+                />
+              </div>
+
+              <div class="form-group text-center mb-3">
+                <button
+                  class="btn btn-primary btn-lg width-lg btn-rounded"
+                  type="submit"
+                >
+                  Sign In
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- end card -->
+          <!-- end row -->
+        </div>
+        <!-- end col -->
+      </div>
+      <!-- end row -->
+    </div>
+    <!-- end container -->
+  </div>
+
+  <!-- <h1>halaman login</h1>
   <form action="/login" method="post">
     <div class="w-50">
       <div class="mb-3 mt-5">
@@ -30,4 +83,5 @@
       </button>
     </div>
   </form>
+</div> -->
 </div>

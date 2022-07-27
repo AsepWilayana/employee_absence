@@ -73,13 +73,13 @@ const getAbsensiById = async (req, res) => {
         tgl_akhir !== undefined &&
         jam_kerja === "lebih_besar"
       ) {
-        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') >= '09:00:00' order by tanggal desc;`;
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') > '09:00:00' order by tanggal desc;`;
       } else if (
         tgl_awal !== undefined &&
         tgl_akhir !== undefined &&
         jam_kerja === "lebih_kecil"
       ) {
-        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') < '09:00:00' order by tanggal desc;`;
+        query = `SELECT *, to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') as jam_kerja FROM absensi WHERE id_pegawai = '${id_pegawai}' AND tanggal >= '${tgl_awal}' AND tanggal <= '${tgl_akhir}' AND to_char(jam_keluar - jam_masuk::time, 'HH24:MI:ss') <= '09:00:00' order by tanggal desc;`;
       }
 
       const getAbsensiById = await pool.query(query);

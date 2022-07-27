@@ -1,9 +1,14 @@
 <div class="container mt-5">
-  <% if(msg.length !== 0) { %>
+  <div class="content-page">
+    <div class="content">
+         <br />
+      <% if(msg.length !== 0) { %>
   <div class="alert alert-success" role="alert"><b><%= msg %></b></div>
   <% } %>
-  <h1>Update Profile</h1>
-  <div class="card shadow p-3 mb-5 bg-body rounded" style="width: 50rem">
+  <div class="mt-5">
+    <h1>Update Profile</h1>
+  </div>
+  <div class="card shadow mt-3 p-3 mb-5 bg-body rounded" style="width: 50rem">
     <div class="card-body">
     <div class="row">
     <div class="col-4">
@@ -96,7 +101,7 @@
 
         <div class="input-group mb-3">
           <select
-            class="form-select"
+            class="form-select form-control"
             name="role"
             aria-label="Default select example"
             disabled
@@ -139,7 +144,8 @@
       </form>
     </div>
   </div>
-      
+    </div>
+  </div>
     </div>
   </div>
 </div>

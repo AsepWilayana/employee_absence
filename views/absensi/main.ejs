@@ -1,48 +1,59 @@
 <div class="container mt-5">
-  <h1>List Absensi Pegawai</h1>
-  <div class="table-responsive-sm mt-3">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" class="text-center">#</th>
-          <th scope="col" class="text-center">Nama Pegawai</th>
-          <th scope="col" class="text-center text-wrap">Nomor Induk Pegawai</th>
-          <th scope="col" class="text-center">tanggal</th>
-          <th scope="col" class="text-center">Jam Masuk</th>
-          <th scope="col" class="text-center">Jam Keluar</th>
-          <th scope="col" class="text-center">Keterangan</th>
-          <th scope="col" class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (absensi < 1) {%>
-        <tr>
-          <td colspan="7" class="text-center">data kosong</td>
-        </tr>
-        <% } else {%> <% for(let index=0; index < absensi.length; index++) { %>
-        <% var today = absensi[index].tanggal.toLocaleDateString('id-ID', {
-        weekday: 'long', day : 'numeric', month : 'long', year : 'numeric'
-        }).split(' ').join(' '); %>
-        <tr>
-          <td><%= index+1 %></td>
-          <td><%= absensi[index].name %></td>
-          <td><%= absensi[index].nip %></td>
-          <td><%= today %></td>
-          <td><%= absensi[index].jam_masuk %></td>
-          <td><%= absensi[index].jam_keluar %></td>
-          <td><%= absensi[index].keterangan %></td>
-          <td>
-            <a
-              href="/absensi/detail/<%=absensi[index].id_pegawai %>"
-              class="btn btn-success"
-            >
-              <i class="bi bi-person-lines-fill"></i>
-              Detail
-            </a>
-          </td>
-        </tr>
-        <% } %> <% } %>
-      </tbody>
-    </table>
+  <div class="content-page">
+    <div class="content">
+      <div class="mt-5">
+        <h1>List Absensi Pegawai</h1>
+      </div>
+      <div class="card shadow mt-3 p-3 mb-5 bg-body rounded">
+        <div class="table-responsive-sm mt-3">
+          <table class="table">
+            <thead class="bg-pink text-white">
+              <tr>
+                <th scope="col" class="text-center">#</th>
+                <th scope="col" class="text-center">Nama Pegawai</th>
+                <th scope="col" class="text-center text-wrap">
+                  Nomor Induk Pegawai
+                </th>
+                <th scope="col" class="text-center">tanggal</th>
+                <th scope="col" class="text-center">Absen Masuk</th>
+                <th scope="col" class="text-center">Absen Keluar</th>
+                <th scope="col" class="text-center">Keterangan</th>
+                <th scope="col" class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (absensi < 1) {%>
+              <tr>
+                <td colspan="7" class="text-center">data kosong</td>
+              </tr>
+              <% } else {%> <% for(let index=0; index < absensi.length; index++)
+              { %> <% var today =
+              absensi[index].tanggal.toLocaleDateString('id-ID', { weekday:
+              'long', day : 'numeric', month : 'long', year : 'numeric'
+              }).split(' ').join(' '); %>
+              <tr>
+                <td><%= index+1 %></td>
+                <td><%= absensi[index].name %></td>
+                <td><%= absensi[index].nip %></td>
+                <td><%= today %></td>
+                <td><%= absensi[index].jam_masuk %></td>
+                <td><%= absensi[index].jam_keluar %></td>
+                <td><%= absensi[index].keterangan %></td>
+                <td>
+                  <a
+                    href="/absensi/detail/<%=absensi[index].id_pegawai %>"
+                    class="btn btn-success"
+                  >
+                    <i class="bi bi-person-lines-fill"></i>
+                    Detail
+                  </a>
+                </td>
+              </tr>
+              <% } %> <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

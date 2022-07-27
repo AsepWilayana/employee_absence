@@ -20,6 +20,7 @@ var bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 var flash = require("connect-flash");
 var absensiRoute = require("./Routes/absensiRoute");
+const { nextTick } = require("process");
 
 // create "middleware"
 app.set("view engine", "ejs");
@@ -56,6 +57,37 @@ app.use(
 );
 app.use(flash());
 
+app.use("/", async (req, res, next) => {
+  const url = req.url;
+  const method = req.method;
+
+  let role;
+  let name;
+  if (req.session === undefined) {
+    role = "tidak ada";
+    name = "tidak ada";
+  } else {
+    role = req.session.nama_role;
+    name = req.session.name;
+  }
+  var d = new Date();
+  var dateTime =
+    d.getDate() +
+    "-" +
+    (d.getMonth() + 1) +
+    "-" +
+    d.getFullYear() +
+    " " +
+    d.getHours() +
+    ":" +
+    d.getMinutes();
+  await pool.query(
+    `INSERT INTO log_service (
+    method, url, role, "user", tanggal ) values ('${method}','${url}','${role}','${name}','${dateTime}')`
+  );
+  next();
+});
+
 cron.schedule("01 00 * * *", () => {
   sendData().then(console.log("success Generate Absensi"));
 });
@@ -78,7 +110,9 @@ async function sendData() {
   // var datestring =
   //   d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   //console.log(datestring);
-  const getpegawai = await pool.query(`SELECT * FROM pegawai;`);
+  const getpegawai = await pool.query(
+    `SELECT * FROM pegawai Where status = 'aktif';`
+  );
   const pegawai = getpegawai.rows;
   for (let index = 0; index < pegawai.length; index++) {
     await pool.query(
@@ -114,13 +148,14 @@ app.post("/login", async (req, res) => {
       const getpegawai = await pool.query(
         `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
       );
-      const pegawai = getpegawai.rows;
-      const pass = getpegawai.rows[0].password;
-      const role = getpegawai.rows[0].nama_role;
-      console.log(role);
+
+      //console.log(role);
       // console.log(password);
-      if (getpegawai.rows[0].status == "aktif") {
-        if (pegawai.length > 0) {
+      if (getpegawai.rows.length > 0) {
+        if (getpegawai.rows[0].status == "aktif") {
+          const pegawai = getpegawai.rows;
+          const pass = getpegawai.rows[0].password;
+          const role = getpegawai.rows[0].nama_role;
           const result = await bcrypt.compare(req.body.password, pass);
           //console.log(result);
           if (result === true) {
@@ -164,7 +199,8 @@ app.use(absensiRoute);
 app.get("/dashboard", async (req, res) => {
   var sessions = req.session;
   const title = "Dashboard";
-  console.log(req);
+  // console.log(req);
+  // console.log(req.session.nama_role);
   msg = req.flash("msg");
   if (sessions.nip) {
     const getAbsensi = await pool.query(
@@ -173,7 +209,37 @@ app.get("/dashboard", async (req, res) => {
       where tanggal = now()::date AND pegawai.nip = '${sessions.nip}' 
       order by absensi.tanggal asc;`
     );
+
+    const getPegawai = await pool.query(
+      `SELECT * FROM pegawai WHERE id_role = '3';`
+    );
+
+    const getAbsensiJm = await pool.query(
+      `SELECT * from absensi
+      where tanggal = now()::date AND jam_masuk is NOT NULL
+      order by absensi.tanggal asc;`
+    );
+    const getAbsensiJk = await pool.query(
+      `SELECT * from absensi 
+      where tanggal = now()::date AND jam_keluar is NOT NULL
+      order by absensi.tanggal asc;`
+    );
+    const getAbsensiJmlebih = await pool.query(
+      `SELECT * from absensi 
+      where tanggal = now()::date AND jam_masuk > '09:00:00'
+      order by absensi.tanggal asc;`
+    );
+    const getAbsensiJmKurang = await pool.query(
+      `SELECT * from absensi 
+      where tanggal = now()::date AND jam_masuk <= '09:00:00'
+      order by absensi.tanggal asc;`
+    );
     const absensi = getAbsensi.rows;
+    const pegawai = getPegawai.rows;
+    const jamMasuk = getAbsensiJm.rows;
+    const jamKeluar = getAbsensiJk.rows;
+    const jamMasukLebih = getAbsensiJmlebih.rows;
+    const jamMasukKurang = getAbsensiJmKurang.rows;
     const jam_masuk = "";
     const jam_keluar = "";
     // console.log(absensi);
@@ -181,9 +247,13 @@ app.get("/dashboard", async (req, res) => {
       title: title,
       sessions,
       absensi,
+      pegawai,
       msg,
       jam_masuk,
       jam_keluar,
+      jamMasuk,
+      jamKeluar,
+      jamMasukLebih,
     });
   } else {
     res.redirect("/");
@@ -206,11 +276,36 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
     );
     const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
 
+    var d = new Date();
+    var dateTime =
+      d.getDate() +
+      "-" +
+      (d.getMonth() + 1) +
+      "-" +
+      d.getFullYear() +
+      " " +
+      d.getHours() +
+      ":" +
+      d.getMinutes();
+    var datestring =
+      d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+
     const title = "Web Server EJS";
+
     await pool.query(
       `INSERT INTO pegawai (
 	nip, name, alamat, jenis_kelamin, photo, password, status, id_role) 
   values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}','${status}','${role}')`
+    );
+
+    const pegawaiId = await pool.query(
+      `SELECT id_pegawai FROM pegawai order by id_pegawai desc limit 1;`
+    );
+    const id_pegawai = parseInt(pegawaiId.rows[0].id_pegawai);
+
+    await pool.query(
+      `INSERT INTO absensi (
+    id_pegawai, tanggal, keterangan, create_at, update_at ) values ('${id_pegawai}','${datestring}','belum absen masuk dan keluar','${dateTime}','${dateTime}')`
     );
 
     req.flash("msg", "data berhasil ditambahkan");
@@ -345,6 +440,31 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
     }
     req.flash("msg", "Success Update Data");
     res.redirect("/profile");
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.get("/log_service", async (req, res) => {
+  try {
+    var sessions = req.session;
+    const title = "log_service";
+    msg = req.flash("msg");
+    if (sessions.nip) {
+      const getLog = await pool.query(
+        `SELECT * FROM log_service order by id desc;`
+      );
+      const log = getLog.rows;
+      //console.log(log);
+      res.render("log_service/main", {
+        title: title,
+        sessions,
+        msg,
+        log,
+      });
+    } else {
+      res.redirect("/");
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
