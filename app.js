@@ -269,6 +269,7 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
     const password = req.body.password;
     const status = "aktif";
     const role = req.body.role;
+    const jabatan = req.body.jabatan;
     var hash = bcrypt.hashSync(password, 10);
 
     const pegawaiOne = await pool.query(
@@ -294,8 +295,8 @@ app.post("/pegawai", upload.single("profile-file"), async (req, res) => {
 
     await pool.query(
       `INSERT INTO pegawai (
-	nip, name, alamat, jenis_kelamin, photo, password, status, id_role) 
-  values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}','${status}','${role}')`
+	nip, name, alamat, jenis_kelamin, photo, password, status, id_role, id_jabatan) 
+  values ('${nip}','${name}','${alamat}','${jk}','${foto}','${hash}','${status}','${role}','${jabatan}')`
     );
 
     const pegawaiId = await pool.query(
@@ -324,9 +325,11 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
     const newphoto = req.file?.originalname;
     const newpassword = req.body.password;
     const role = req.body.role;
+    const jabatan = req.body.jabatan;
     var hash = bcrypt.hashSync(newpassword, 10);
     const findData = await pool.query(
-      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
+      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role 
+      join jabatan on jabatan.id_jabatan = pegawai.id_jabatan WHERE id_pegawai = '${id}' ;`
     );
     const pegawai = findData.rows[0];
 
@@ -349,9 +352,10 @@ app.post("/:id", upload.single("profile-file"), async (req, res) => {
       const Newphoto = newphoto || pegawai.photo;
       //const Newpassword = hash || pegawai.password;
       const Role = role || pegawai.id_role;
+      const Jabatan = jabatan || pegawai.id_jabatan;
 
       pool.query(`UPDATE pegawai
-      SET id_pegawai='${id_pegawai}', nip='${Newnip}', name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}',id_role='${Role}'  ,password='${Newpassword}'
+      SET id_pegawai='${id_pegawai}', nip='${Newnip}', name='${Newname}', alamat='${Newalamat}', jenis_kelamin='${Newjk}' , photo='${Newphoto}',id_role='${Role}'  ,password='${Newpassword}',id_jabatan='${Jabatan}'
       WHERE id_pegawai = '${id}';`);
     } else {
       console.log("data tidak ada");
@@ -383,6 +387,8 @@ app.get("/profile", async (req, res) => {
 
       const roles = await pool.query(`SELECT * FROM role;`);
       const role = roles.rows;
+      const jabatans = await pool.query(`SELECT * FROM jabatan;`);
+      const jabatan = jabatans.rows;
 
       msg = req.flash("msg");
       res.render("profile/main", {
@@ -391,6 +397,7 @@ app.get("/profile", async (req, res) => {
         sessions,
         role,
         msg,
+        jabatan,
       });
     } else {
       res.redirect("/");
@@ -410,7 +417,8 @@ app.post("/profile/:id", upload.single("profile-file"), async (req, res) => {
     const newpassword = req.body.password;
     var hash = bcrypt.hashSync(newpassword, 10);
     const findData = await pool.query(
-      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}' ;`
+      `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role 
+      join jabatan on jabatan.id_jabatan = pegawai.id_jabatan WHERE id_pegawai = '${id}' ;`
     );
 
     const pegawai = findData.rows[0];
@@ -465,6 +473,46 @@ app.get("/log_service", async (req, res) => {
     } else {
       res.redirect("/");
     }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.get("/jabatan", async (req, res) => {
+  try {
+    var sessions = req.session;
+    const title = "jabatan";
+    msg = req.flash("msg");
+    if (sessions.nip) {
+      const getJabatan = await pool.query(`SELECT * FROM jabatan;`);
+      const jabatan = getJabatan.rows;
+      //console.log(log);
+      res.render("jabatan/main", {
+        title: title,
+        sessions,
+        msg,
+        jabatan,
+      });
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+app.post("/jabatan/add", async (req, res) => {
+  try {
+    const jabatan = req.body.jabatan;
+    console.log(jabatan);
+
+    const title = "Web Server EJS";
+
+    await pool.query(
+      `INSERT INTO jabatan (nama_jabatan) values ('${jabatan}')`
+    );
+
+    req.flash("msg", "data berhasil ditambahkan");
+    res.redirect("/jabatan");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

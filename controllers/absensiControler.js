@@ -114,7 +114,8 @@ const history = async (req, res) => {
       const title = "Pegawai";
       const nip = sessions.nip;
       const getpegawai = await pool.query(
-        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE nip = '${nip}';`
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role 
+        join jabatan on jabatan.id_jabatan = pegawai.id_jabatan WHERE nip = '${nip}';`
       );
       const id_pegawai = getpegawai.rows[0].id_pegawai;
       let query = "";

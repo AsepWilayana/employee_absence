@@ -1,0 +1,161 @@
+<div class="container mt-5">
+  <div class="content-page">
+    <div class="content">
+      <br />
+      <% if(msg.length !== 0) { %>
+      <div class="alert alert-success" role="alert">
+        <b><%= msg %></b>
+      </div>
+      <% } %>
+      <div class="mt-5">
+        <h1>Data Pegawai</h1>
+      </div>
+      <!-- <a href="/jabatan/add" class="btn btn-primary mt-3"
+        ><i class="bi bi-person-plus-fill"></i> Tambah Data Pegawai
+      </a> -->
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#addModal"
+        data-bs-whatever="@mdo"
+      >
+        Tambah Data Pegawai Modal
+      </button>
+      <div class="card shadow-sm mt-2 p-3 mb-5 bg-body rounded mt-2">
+        <div class="card-body">
+          <table class="table">
+            <thead class="bg-pink text-white">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nama Jabatan</th>
+                <th scope="col" class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (jabatan < 1) {%>
+              <tr>
+                <td colspan="4" class="text-center">data kosong</td>
+              </tr>
+              <% } else {%> <% for (let index=0; index < jabatan.length;
+              index++) { %>
+              <tr>
+                <td scope="row"><%= index+1 %></td>
+                <td><%=jabatan[index].nama_jabatan %></td>
+                <td>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <span>
+                      <a
+                        href="/update/<%=jabatan[index].id_jabatan %>"
+                        class="btn btn-warning m-1"
+                      >
+                        Update
+                      </a>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#updateModal"
+                            data-bs-whatever="@mdo"
+                            data-id="<%= jabatan[index].id_jabatan %>"
+                            data-nama="<%= jabatan[index].nama_jabatan %>"
+                        >
+                            Update Data Pegawai Modal
+                        </button>
+                    </span>
+                    <span>
+                      <a
+                        href="/delete/<%=jabatan[index].id_jabatan %>"
+                        onclick="return confirm('yakin?')"
+                        class="btn btn-danger m-1"
+                      >
+                        Delete
+                      </a>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <% } %> <%}%>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="addModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Tambah Jabatan</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="/jabatan/add">
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label"
+              >Nama Jabatan
+            <input type="text" class="form-control" id="recipient-name" name="jabatan" required/>
+          </div>
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-primary">Send message</button>
+      </div>
+       </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="updateModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update Jabatan</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="/jabatan/update">
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label"
+              >Nama Jabatan
+            <input type="text" class="form-control" id="name" name="jabatan" value="${name}" required/>
+          </div>
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-primary">Send message</button>
+      </div>
+       </form>
+    </div>
+  </div>
+</div>

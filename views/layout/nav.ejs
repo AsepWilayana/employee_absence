@@ -150,6 +150,11 @@
           </ul>
           <ul class="navigation-menu">
             <li class="has-submenu">
+              <a href="/jabatan"> <i class="fe-airplay"></i>Jabatan </a>
+            </li>
+          </ul>
+          <ul class="navigation-menu">
+            <li class="has-submenu">
               <a href="/pegawai"> <i class="fe-airplay"></i>Pegawai </a>
             </li>
           </ul>
@@ -160,6 +165,13 @@
               </a>
             </li>
           </ul>
+          <% if(sessions.nama_role !== 'superadmin'){ %>
+          <ul class="navigation-menu">
+            <li class="has-submenu">
+              <a href="/history"> <i class="fe-airplay"></i>History Absensi </a>
+            </li>
+          </ul>
+          <% } %>
           <ul class="navigation-menu">
             <li class="has-submenu">
               <a href="/profile"> <i class="fe-airplay"></i>Profile </a>

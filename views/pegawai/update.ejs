@@ -106,6 +106,24 @@
           </select>
         </div>
 
+        <div class="input-group mb-3">
+          <select
+            class="form-select form-control"
+            name="jabatan"
+            aria-label="Default select example"
+          >
+            <% for(let index=0; index < jabatan.length; index++){ %>
+            <option <%= pegawai.id_jabatan === jabatan[index].id_jabatan ?
+            'selected' : ''; %>
+              name="<%= jabatan[index].id_jabatan %>"
+              value="<%= jabatan[index].id_jabatan %>"
+            >
+              <%= jabatan[index].nama_jabatan %>
+            </option>
+            <% } %>
+          </select>
+        </div>
+
         <div class="mb-3">
           <input
             value=""

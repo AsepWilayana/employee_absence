@@ -25,7 +25,7 @@ const getPegawai = async (req, res) => {
     msg = req.flash("msg");
     if (sessions.nip) {
       const pegawaiAll = await pool.query(
-        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE pegawai.id_role != '1' order by id_pegawai asc;`
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE pegawai.id_role != '1' order by id_pegawai DESC;`
       );
       const pegawai = pegawaiAll.rows;
       res.render("pegawai/main", { pegawai, sessions, msg });
@@ -44,7 +44,8 @@ const getPegawaiById = async (req, res) => {
       const title = "Pegawai";
       const id = req.params.id;
       const getpegawai = await pool.query(
-        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role WHERE id_pegawai = '${id}';`
+        `SELECT * FROM pegawai join role on role.id_role = pegawai.id_role
+        join jabatan on jabatan.id_jabatan = pegawai.id_jabatan WHERE id_pegawai = '${id}';`
       );
       const id_pegawai = getpegawai.rows[0].id_pegawai;
       const getAbsensiById = await pool.query(
@@ -117,11 +118,15 @@ const updatePegawai = async (req, res) => {
       );
       const role = roles.rows;
 
+      const jabatans = await pool.query(`SELECT * FROM jabatan;`);
+      const jabatan = jabatans.rows;
+
       res.render("pegawai/update", {
         title: title,
         pegawai,
         sessions,
         role,
+        jabatan,
       });
     } else {
       res.redirect("/");
@@ -178,9 +183,12 @@ const formPegawai = async (req, res) => {
     const roles = await pool.query(
       `SELECT * FROM role where nama_role != 'superadmin';`
     );
+
+    const jabatans = await pool.query(`SELECT * FROM jabatan;`);
     const role = roles.rows;
+    const jabatan = jabatans.rows;
     const nip = parseInt(pegawaiOne.rows[0].nip) + 1;
-    res.render("pegawai/add", { title: title, nip, role, sessions });
+    res.render("pegawai/add", { title: title, nip, role, sessions, jabatan });
   } else {
     res.redirect("/");
   }

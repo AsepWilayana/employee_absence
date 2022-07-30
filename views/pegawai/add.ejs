@@ -59,6 +59,7 @@
                   name="jk"
                   id="jk1"
                   value="laki-laki"
+                  checked
                 />
                 <label class="form-check-label" for="jk1"> Laki-laki </label>
               </div>
@@ -97,6 +98,24 @@
                   value="<%= role[index].id_role %>"
                 >
                   <%= role[index].nama_role %>
+                </option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="input-group mb-3">
+              <select
+                class="form-select form-control"
+                name="jabatan"
+                aria-label="Default select example"
+              >
+                <option selected>Pilih Jabatan</option>
+                <% for(let index=0; index < jabatan.length; index++){ %>
+                <option
+                  name="<%= jabatan[index].id_jabatan %>"
+                  value="<%= jabatan[index].id_jabatan %>"
+                >
+                  <%= jabatan[index].nama_jabatan %>
                 </option>
                 <% } %>
               </select>
